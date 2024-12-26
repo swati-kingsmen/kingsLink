@@ -374,7 +374,8 @@ const CommonCheckTable = (props) => {
                                     }
                                 </MenuList>
                             </Menu>}
-                        {(access?.create || access === true) && <Button onClick={() => handleClick()} size="sm" variant="brand" leftIcon={<AddIcon />}>Add New</Button>}
+                            {(access?.create || access === true)}
+                        {<Button onClick={() => handleClick()} size="sm" variant="brand" leftIcon={<AddIcon />}>Add New</Button>}
                         {BackButton && BackButton}
                     </GridItem>
                     <HStack spacing={4} mb={2}>
