@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Button, Input, Table, Thead, Tbody, Tr, Th, Td, Spinner, Text, Box } from '@chakra-ui/react';
-import { MdEmail } from 'react-icons/md';
-import { FaSquareWhatsapp } from "react-icons/fa6";
 import { toast } from 'react-toastify';
 import { getApi } from 'services/api';
+import { FaSquareWhatsapp } from "react-icons/fa6";
 
 const Index = () => {
     const title = "Contacts";
@@ -22,7 +21,7 @@ const Index = () => {
                     .map(contact => ({
                         name: contact.ContactName,
                         mobile: contact.phoneNumber,
-                        email: contact.email
+                        email: contact.email,
                     }))
                     .sort((a, b) => a.name.localeCompare(b.name)); // Sort alphabetically
                 setData(formattedData);
@@ -40,19 +39,11 @@ const Index = () => {
         fetchData();
     }, []);
 
-    // Handle sending email
-    const handleSendEmail = (email) => {
-        if (email) {
-            window.location.href = `mailto:${email}`;
-        } else {
-            toast.error("Email address not found", "error");
-        }
-    };
-
     // Handle sending WhatsApp message
     const handleSendWhatsapp = (mobile) => {
         if (mobile) {
-            window.open(`https://wa.me/${mobile}`, '_blank');
+            const whatsappLink = `https://wa.me/${mobile}`;
+            window.open(whatsappLink, '_self');
         } else {
             toast.error("Mobile number not found", "error");
         }
@@ -60,10 +51,10 @@ const Index = () => {
 
     // Filtering data based on the search query
     const filterData = (data) => {
-        if (!searchQuery) return data;
+        if (!searchQuery) return data; // No filtering if search query is empty
         const query = searchQuery.toLowerCase();
         return data.filter(contact => {
-            const mobile = String(contact.mobile);
+            const mobile = String(contact.mobile); // Ensure mobile is treated as a string
             return (
                 contact.name.toLowerCase().includes(query) ||
                 contact.email.toLowerCase().includes(query) ||
@@ -100,7 +91,7 @@ const Index = () => {
                             <Th>Name</Th>
                             <Th>Mobile</Th>
                             <Th>Email</Th>
-                            <Th>Send</Th>
+                            <Th>Whatsapp</Th>
                         </Tr>
                     </Thead>
                     <Tbody>
@@ -125,12 +116,11 @@ const Index = () => {
                                     <Td>
                                         <Button
                                             variant="ghost"
-                                            onClick={() => handleSendEmail(contact.email)}
-                                            aria-label="Send Email"
+                                            onClick={() => handleSendWhatsapp(contact.mobile)}
+                                            aria-label="Send WhatsApp"
                                         >
-                                            <MdEmail size={34} color="blue" />
+                                            <FaSquareWhatsapp size={34} color="green" />
                                         </Button>
-                                        
                                     </Td>
                                 </Tr>
                             ))

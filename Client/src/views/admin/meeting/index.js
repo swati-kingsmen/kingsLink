@@ -1,168 +1,140 @@
 import { useEffect, useState } from 'react';
-import { DeleteIcon, ViewIcon } from '@chakra-ui/icons';
-import { Button, Menu, MenuButton, MenuItem, MenuList, Text, useDisclosure } from '@chakra-ui/react';
-import { getApi } from 'services/api';
-import { HasAccess } from '../../../redux/accessUtils';
-import CommonCheckTable from '../../../components/checkTable/checktable';
-import { SearchIcon } from "@chakra-ui/icons";
-import { CiMenuKebab } from 'react-icons/ci';
-import { Link, useNavigate } from 'react-router-dom';
-import MeetingAdvanceSearch from './components/MeetingAdvanceSearch';
-import AddMeeting from './components/Addmeeting';
-import CommonDeleteModel from 'components/commonDeleteModel';
-import { deleteManyApi } from 'services/api';
+import { Button, Input, Table, Thead, Tbody, Tr, Th, Td, Spinner, Text, Box } from '@chakra-ui/react';
 import { toast } from 'react-toastify';
-import { fetchMeetingData } from '../../../redux/meetingSlice';
-import { useDispatch } from 'react-redux';
+import { getApi } from 'services/api';
+import { SiGooglemeet } from "react-icons/si";
 
 const Index = () => {
-    const title = "Meeting";
-    const navigate = useNavigate()
-    const [action, setAction] = useState(false);
-    const { isOpen, onOpen, onClose } = useDisclosure();
-    const [selectedValues, setSelectedValues] = useState([]);
-    const [advanceSearch, setAdvanceSearch] = useState(false);
-    const [getTagValuesOutSide, setGetTagValuesOutside] = useState([]);
-    const [searchboxOutside, setSearchboxOutside] = useState('');
-    const user = JSON.parse(localStorage.getItem("user"));
-    const [deleteMany, setDeleteMany] = useState(false);
-    const [isLoding, setIsLoding] = useState(false);
+    const title = "Contacts";
+    const [isLoading, setIsLoading] = useState(false);
     const [data, setData] = useState([]);
-    const [displaySearchData, setDisplaySearchData] = useState(false);
-    const [searchedData, setSearchedData] = useState([]);
-    const [permission] = HasAccess(['Meetings'])
-    const dispatch = useDispatch()
+    const [searchQuery, setSearchQuery] = useState('');
 
+    // Default meeting link
+    const defaultMeetingLink = "https://us05web.zoom.us/j/84850119923?pwd=Aji8PCSYPGaBu0tLySOoJeLMZIXzRd.1";
 
-    const actionHeader = {
-        Header: "Action", isSortable: false, center: true,
-        cell: ({ row }) => (
-            <Text fontSize="md" fontWeight="900" textAlign={"center"}>
-                <Menu isLazy  >
-                    <MenuButton><CiMenuKebab /></MenuButton>
-                    <MenuList minW={'fit-content'} transform={"translate(1520px, 173px);"}>
-
-                        {permission?.view && <MenuItem py={2.5} color={'green'}
-                            onClick={() => navigate(`/metting/${row?.values._id}`)}
-                            icon={<ViewIcon fontSize={15} />}>View</MenuItem>}
-                        {permission?.delete && <MenuItem py={2.5} color={'red'} onClick={() => { setDeleteMany(true); setSelectedValues([row?.values?._id]); }} icon={<DeleteIcon fontSize={15} />}>Delete</MenuItem>}
-                    </MenuList>
-                </Menu>
-            </Text>
-        )
-    }
-    const tableColumns = [
-        {
-            Header: "#",
-            accessor: "_id",
-            isSortable: false,
-            width: 10
-        },
-        {
-            Header: 'Agenda', accessor: 'agenda', cell: (cell) => (
-                <Link to={`/metting/${cell?.row?.values._id}`}> <Text
-                    me="10px"
-                    sx={{ '&:hover': { color: 'blue.500', textDecoration: 'underline' } }}
-                    color='brand.600'
-                    fontSize="sm"
-                    fontWeight="700"
-                >
-                    {cell?.value || ' - '}
-                </Text></Link>)
-        },
-        { Header: "Date & Time", accessor: "dateTime", },
-        { Header: "Time Stamp", accessor: "timestamp", },
-        { Header: "Create By", accessor: "createdByName", },
-        ...(permission?.update || permission?.view || permission?.delete ? [actionHeader] : [])
-
-    ];
-
+    // Fetch data from API
     const fetchData = async () => {
-        setIsLoding(true)
-        const result = await dispatch(fetchMeetingData())
-        if (result.payload.status === 200) {
-            setData(result?.payload?.data);
-        } else {
-            toast.error("Failed to fetch data", "error");
-        }
-        setIsLoding(false)
-    }
-
-    const handleDeleteMeeting = async (ids) => {
+        setIsLoading(true);
         try {
-            setIsLoding(true)
-            let response = await deleteManyApi('api/meeting/deleteMany', ids)
-            if (response.status === 200) {
-                setSelectedValues([])
-                setDeleteMany(false)
-                setAction((pre) => !pre)
+            const response = await getApi('api/contact');
+            console.log(response)
+            if (response.status === 200 && response.data) {
+                const formattedData = response.data
+                    .map(contact => ({
+                        name: contact.ContactName,
+                        mobile: contact.phoneNumber,
+                        email: contact.email,
+                        zoomMeetingLink: contact.zoomMeetingLink || defaultMeetingLink // Use default if not provided
+                    }))
+                    .sort((a, b) => a.name.localeCompare(b.name)); // Sort alphabetically by name
+                setData(formattedData);
+                console.log(data)
+            } else {
+                toast.error("Failed to fetch contacts", "error");
             }
         } catch (error) {
-            console.log(error)
+            toast.error("An error occurred while fetching contacts", "error");
+        } finally {
+            setIsLoading(false);
         }
-        finally {
-            setIsLoding(false)
-        }
-    }
-
-    const [selectedColumns, setSelectedColumns] = useState([...tableColumns]);
-    const dataColumn = tableColumns?.filter(item => selectedColumns?.find(colum => colum?.Header === item.Header))
-
+    };
 
     useEffect(() => {
         fetchData();
-    }, [action])
+    }, []);
+
+    // Handle meeting redirection
+    const handleViewMeeting = (zoomMeetingLink) => {
+        if (zoomMeetingLink) {
+            window.open(zoomMeetingLink, '_self'); // Open in the same tab
+        } else {
+            toast.error("Meeting link not available", "error");
+        }
+    };
+
+    // Filtering data based on the search query
+    const filterData = (data) => {
+        if (!searchQuery) return data;
+        const query = searchQuery.toLowerCase();
+        return data.filter(contact => {
+            const mobile = String(contact.mobile);
+            return (
+                contact.name.toLowerCase().includes(query) ||
+                contact.email.toLowerCase().includes(query) ||
+                mobile.includes(query)
+            );
+        });
+    };
 
     return (
-        <div>
-            <CommonCheckTable
-                title={title}
-                isLoding={isLoding}
-                columnData={tableColumns ?? []}
-                dataColumn={dataColumn ?? []}
-                allData={data ?? []}
-                tableData={data}
-                searchDisplay={displaySearchData}
-                setSearchDisplay={setDisplaySearchData}
-                searchedDataOut={searchedData}
-                setSearchedDataOut={setSearchedData}
-                tableCustomFields={[]}
-                access={permission}
-                action={action}
-                setAction={setAction}
-                selectedColumns={selectedColumns}
-                setSelectedColumns={setSelectedColumns}
-                isOpen={isOpen}
-                onClose={onClose}
-                onOpen={onOpen}
-                selectedValues={selectedValues}
-                setSelectedValues={setSelectedValues}
-                setDelete={setDeleteMany}
-                AdvanceSearch={
-                    <Button variant="outline" colorScheme='brand' leftIcon={<SearchIcon />} mt={{ sm: "5px", md: "0" }} size="sm" onClick={() => setAdvanceSearch(true)}>Advance Search</Button>
-                }
-                getTagValuesOutSide={getTagValuesOutSide}
-                searchboxOutside={searchboxOutside}
-                setGetTagValuesOutside={setGetTagValuesOutside}
-                setSearchboxOutside={setSearchboxOutside}
-            />
+        <Box p={4} bg="white" maxWidth="100vw">
+            {/* Responsive Search Box */}
+            <Box mb={4} display="flex" >
+                <Input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search by name, email, or mobile"
+                    size="md"
+                    bg="gray.50"
+                    color="gray.700"
+                    border="1px solid"
+                    borderColor="gray.300"
+                    _hover={{ borderColor: 'gray.400' }}
+                    _focus={{ borderColor: 'blue.500', boxShadow: '0 0 0 1px rgba(66,153,225,0.6)' }}
+                    w={["90%", "70%", "50%", "400px"]} // Responsive width: full width on small screens, fixed on larger screens
+                    
+                />
+            </Box>
 
-            <MeetingAdvanceSearch
-                advanceSearch={advanceSearch}
-                setAdvanceSearch={setAdvanceSearch}
-                setSearchedData={setSearchedData}
-                setDisplaySearchData={setDisplaySearchData}
-                allData={data ?? []}
-                setAction={setAction}
-                setGetTagValues={setGetTagValuesOutside}
-                setSearchbox={setSearchboxOutside}
-            />
-            <AddMeeting setAction={setAction} isOpen={isOpen} onClose={onClose} />
+            {/* Responsive Table */}
+            <Box overflowX="auto">
+                <Table variant="simple" color="gray.500" mb="24px">
+                    <Thead>
+                        <Tr>
+                            <Th>Name</Th>
+                            <Th>Mobile</Th>
+                            <Th>Email</Th>
+                            <Th>Meeting</Th>
+                        </Tr>
+                    </Thead>
+                    <Tbody>
+                        {isLoading ? (
+                            <Tr>
+                                <Td colSpan={4}>
+                                    <Spinner />
+                                </Td>
+                            </Tr>
+                        ) : data.length === 0 ? (
+                            <Tr>
+                                <Td colSpan={4}>
+                                    <Text textAlign="center" color="gray.500" fontSize="sm">No data found</Text>
+                                </Td>
+                            </Tr>
+                        ) : (
+                            filterData(data).map((contact, index) => (
+                                <Tr key={index}>
+                                    <Td>{contact.name}</Td>
+                                    <Td>{contact.mobile}</Td>
+                                    <Td>{contact.email}</Td>
+                                    <Td>
+                                        <Button
+                                            variant="ghost"
+                                            onClick={() => handleViewMeeting(contact.zoomMeetingLink)}
+                                            aria-label="View Meeting"
+                                        >
+                                            <SiGooglemeet size={34} color="red" />
+                                        </Button>
+                                    </Td>
+                                </Tr>
+                            ))
+                        )}
+                    </Tbody>
+                </Table>
+            </Box>
+        </Box>
+    );
+};
 
-            {/* Delete model */}
-            <CommonDeleteModel isOpen={deleteMany} onClose={() => setDeleteMany(false)} type='Meetings' handleDeleteData={handleDeleteMeeting} ids={selectedValues} />
-        </div>
-    )
-}
-
-export default Index
+export default Index;

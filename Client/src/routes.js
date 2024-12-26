@@ -1,4 +1,3 @@
-
 import { Icon } from "@chakra-ui/react";
 import { HiUsers } from "react-icons/hi";
 import {
@@ -11,7 +10,7 @@ import {
 // icon
 import React from "react";
 import { AiFillFolderOpen, AiOutlineMail } from "react-icons/ai";
-import { FaCalendarAlt, FaRupeeSign, FaTasks, FaWpforms } from "react-icons/fa";
+import { FaCalendarAlt, FaRupeeSign, FaTasks, FaWpforms ,FaWhatsapp} from "react-icons/fa";
 import { LuBuilding2 } from "react-icons/lu";
 import { PiPhoneCallBold } from "react-icons/pi";
 import { FaCreativeCommonsBy } from "react-icons/fa";
@@ -64,6 +63,10 @@ const PhoneCall = React.lazy(() => import("views/admin/phoneCall"));
 const PhoneCallView = React.lazy(() => import("views/admin/phoneCall/View"));
 
 const Report = React.lazy(() => import("views/admin/reports"));
+
+
+// Whatsapp
+const WhatsApp = React.lazy(() => import("views/admin/whatsapp"));
 
 // Auth Imports
 const SignInCentered = React.lazy(() => import("views/auth/signIn"));
@@ -240,6 +243,26 @@ const routes = [
     path: "/Email/:id",
     component: EmailHistoryView,
   },
+
+
+  // ---------------Whatsapp Routes--------------
+  {
+    name: "WhatsApp Messages",
+    layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+    path: "/whatsapp",
+    icon: <Icon as={FaWhatsapp} width="20px" height="20px" color="inherit" />,
+    component: WhatsApp,
+  },
+  // {
+  //   name: "WhatsApp Message View",
+  //   layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+  //   under: "whatsapp",
+  //   parentName: "WhatsApp Messages",
+  //   path: "/whatsapp/:id",
+  //   component: WhatsAppView,
+  // },
+
+
   // ------------- Calender Routes ------------------------
   {
     name: "Calender",
@@ -368,4 +391,4 @@ const routes = [
   },
 ];
 
-export default routes;
+export default routes;
