@@ -80,7 +80,7 @@ const connectDB = async (DATABASE_URL, DATABASE) => {
             const firstName = 'Kings'
             const lastName = 'Reach'
             const username = 'admin@kingsmenrealty.com'
-            const password = 'cmd@12321'
+            const password = 'admin@123'
             // Hash the password
             const hashedPassword = await bcrypt.hash(password, 10);
             // Create a new user

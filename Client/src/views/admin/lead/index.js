@@ -49,8 +49,31 @@ const Index = () => {
     const [isImport, setIsImport] = useState(false);
     const [emailRec, setEmailRec] = useState('');
     const [phoneRec, setPhoneRec] = useState({});
+   const [filter,setFilter]=useState("all")
 
-    const data = useSelector((state) => state?.leadData?.data);
+    const sampData = useSelector((state) => state?.leadData?.data);
+    const data = filter === "all" ? sampData : sampData.filter((item) => item.leadStatus === filter);
+    console.log(data)
+
+
+    
+// useEffect(()=>{
+//   const fetchFilterData=(value)=>{
+//     const warmData=data.filter((item)=>item.leadStatus===value)
+//     console.log(warmData)
+//     setData(warmData)
+// }
+// // const fetchHotData=()=>{        
+// //   const hotData=data.filter((item)=>item.leadStatus==="hot");
+// //   console.log(hotData)
+// //   setData(hotData)
+// // }
+// },[data])
+
+const handleFilterChange = (status) => {
+  setFilter(status);
+};
+
     const searchedDataOut = useSelector((state) => state?.advanceSearchData?.searchResult)
     const payload = {
         leadStatus: location?.state
@@ -85,82 +108,178 @@ const Index = () => {
         }
     }
 
-    const changeStatus = (cell) => {
-        switch (cell.original.leadStatus) {
-            case 'pending':
-                return 'pending';
-            case 'active':
-                return 'completed';
-            case 'sold':
-                return 'onHold';
-            default:
-                return 'completed';
-        }
+
+    
+    const changeStatus = (row) => {
+    // Get the 'name' value from the row
+    const name = row.original.name;
+  
+    //status logic
+    switch (name) {
+      case "RNR":
+      case "Not Interested":
+      case "Busy":
+      case "Not Reachable":
+        return "cold"; // Return 'cold' status
+      case "Follow Up":
+      case "Site Visit Scheduled":
+        return "warm"; // Return 'warm' status
+      case "Site Visited Done":
+        return "hot"; // Return 'hot' status
+      default:
+        return "pending"; // Default case if no match
     }
+  };
 
-    const fetchCustomDataFields = async () => {
-        setIsLoding(true);
+  const fetchCustomDataFields = async () => {
+    setIsLoding(true);
 
+    try {
+      const result = await dispatch(fetchLeadCustomFiled());
+      if (result.payload.status === 200) {
+        setLeadData(result?.payload?.data);
+      } else {
+        toast.error("Failed to fetch data", "error");
+      }
 
-        try {
-            const result = await dispatch(fetchLeadCustomFiled());
-            if (result.payload.status === 200) {
-                setLeadData(result?.payload?.data);
-            } else {
-                toast.error("Failed to fetch data", "error");
-            }
+      const actionHeader = {
+        Header: "Action",
+        accessor: "action",
+        isSortable: false,
+        center: true,
+        cell: ({ row, i }) => (
+          <Text fontSize="md" fontWeight="900" textAlign={"center"}>
+            <Menu isLazy>
+              <MenuButton>
+                <CiMenuKebab />
+              </MenuButton>
+              <MenuList
+                minW={"fit-content"}
+                transform={"translate(1520px, 173px);"}
+              >
+                {permission?.update && (
+                  <MenuItem
+                    py={2.5}
+                    icon={<EditIcon fontSize={15} mb={1} />}
+                    onClick={() => {
+                      setEdit(true);
+                      setSelectedId(row?.values?._id);
+                    }}
+                  >
+                    Edit
+                  </MenuItem>
+                )}
+                {callAccess?.create && (
+                  <MenuItem
+                    py={2.5}
+                    width={"165px"}
+                    onClick={() => {
+                      setPhoneRec(row?.original);
+                      setAddPhoneCall(true);
+                      setCallSelectedId(row?.values?._id);
+                    }}
+                    icon={<PhoneIcon fontSize={15} mb={1} />}
+                  >
+                    Create Call
+                  </MenuItem>
+                )}
+                {emailAccess?.create && (
+                  <MenuItem
+                    py={2.5}
+                    width={"165px"}
+                    onClick={() => {
+                      handleOpenEmail(row?.values?._id, row?.original);
+                      setSelectedId(row?.values?._id);
+                    }}
+                    icon={<EmailIcon fontSize={15} mb={1} />}
+                  >
+                    EmailSend{" "}
+                  </MenuItem>
+                )}
+                {permission?.view && (
+                  <MenuItem
+                    py={2.5}
+                    color={"green"}
+                    icon={<ViewIcon mb={1} fontSize={15} />}
+                    onClick={() => {
+                      navigate(`/leadView/${row?.values?._id}`, {
+                        state: { leadList: data },
+                      });
+                    }}
+                  >
+                    View
+                  </MenuItem>
+                )}
+                {permission?.delete && (
+                  <MenuItem
+                    py={2.5}
+                    color={"red"}
+                    icon={<DeleteIcon fontSize={15} mb={1} />}
+                    onClick={() => {
+                      setDelete(true);
+                      setSelectedValues([row?.values?._id]);
+                    }}
+                  >
+                    Delete
+                  </MenuItem>
+                )}
+              </MenuList>
+            </Menu>
+          </Text>
+        ),
+      };
 
-            const actionHeader = {
-                Header: "Action", accessor: "action", isSortable: false, center: true,
-                cell: ({ row, i }) => (
-                    <Text fontSize="md" fontWeight="900" textAlign={"center"} >
-                        <Menu isLazy  >
-                            <MenuButton><CiMenuKebab /></MenuButton>
-                            <MenuList minW={'fit-content'} transform={"translate(1520px, 173px);"}>
-                                {permission?.update &&
-                                    <MenuItem py={2.5} icon={<EditIcon fontSize={15} mb={1} />} onClick={() => { setEdit(true); setSelectedId(row?.values?._id); }}>Edit</MenuItem>}
-                                {callAccess?.create &&
-                                    <MenuItem py={2.5} width={"165px"} onClick={() => { setPhoneRec(row?.original); setAddPhoneCall(true); setCallSelectedId(row?.values?._id) }} icon={<PhoneIcon fontSize={15} mb={1} />}>Create Call</MenuItem>}
-                                {emailAccess?.create &&
-                                    <MenuItem py={2.5} width={"165px"} onClick={() => {
-                                        handleOpenEmail(row?.values?._id, row?.original); setSelectedId(row?.values?._id)
-                                    }} icon={<EmailIcon fontSize={15} mb={1} />}>EmailSend </MenuItem>}
-                                {permission?.view &&
-                                    <MenuItem py={2.5} color={'green'} icon={<ViewIcon mb={1} fontSize={15} />} onClick={() => { navigate(`/leadView/${row?.values?._id}`, { state: { leadList: data } }) }}>View</MenuItem>}
-                                {permission?.delete &&
-                                    <MenuItem py={2.5} color={'red'} icon={<DeleteIcon fontSize={15} mb={1} />} onClick={() => { setDelete(true); setSelectedValues([row?.values?._id]); }}>Delete</MenuItem>}
-                            </MenuList>
-                        </Menu>
-                    </Text>
-                )
-            }
-            const tempTableColumns = [
-                { Header: "#", accessor: "_id", isSortable: false, width: 10 },
-                {
-                    Header: "Status", accessor: "leadStatus", isSortable: true, center: true,
-                    cell: ({ row }) => (
-                        <div className="selectOpt" >
-                            <Select defaultValue={'active'} className={changeStatus(row)} onChange={(e) => setStatusData(row, e)} height={7} width={130} value={row.original.leadStatus} style={{ fontSize: "14px" }}>
-                                <option value='active'>Active</option>
-                                <option value='sold'>Sold</option>
-                                <option value='pending'>Pending</option>
-                            </Select>
-                        </div>
-                    )
-                },
-                ...(result?.payload?.data && result.payload.data.length > 0 ? result.payload.data[0]?.fields?.filter((field) => field?.isTableField === true)?.map((field) => (field?.name !== "leadStatus" && { Header: field?.label, accessor: field?.name })) || [] : []),
-                ...(permission?.update || permission?.view || permission?.delete ? [actionHeader] : []),
-            ];
-
-            setSelectedColumns(JSON.parse(JSON.stringify(tempTableColumns)));
-            setColumns(tempTableColumns);
-            setTableColumns(JSON.parse(JSON.stringify(tempTableColumns)));
-            setIsLoding(false);
-        } catch (error) {
-            console.error("Error fetching custom data fields:", error);
-            toast.error("Failed to fetch data ", "error");
-        }
+      const tempTableColumns = [
+        { Header: "#", accessor: "_id", isSortable: false, width: 10 },
+        {
+          Header: "Status",
+          accessor: "leadStatus",
+          isSortable: true,
+          center: true,
+          cell: ({ row }) => (
+            <div className="selectOpt">
+              <Select
+                defaultValue={row.original.leadStatus} // Set the default value from the row's leadStatus
+                className={changeStatus(row)} // Custom class based on the status
+                onChange={(e) => setStatusData(row, e)} // Handle the status change
+                height={7}
+                width={130}
+                value={row.original.leadStatus} // Set the current status value
+                style={{ fontSize: "14px" }}
+              >
+                {/* Dynamically show options depending on the current status */}
+                {changeStatus(row) !== "cold" && <option value="cold">Cold</option>}
+                {changeStatus(row) !== "warm" && <option value="warm">Warm</option>}
+                {changeStatus(row) !== "hot" && <option value="hot">Hot</option>}
+              </Select>
+            </div>
+          ),
+        },
+        ...(result?.payload?.data && result.payload.data.length > 0
+          ? result.payload.data[0]?.fields
+              ?.filter((field) => field?.isTableField === true)
+              ?.map(
+                (field) =>
+                  field?.name !== "leadStatus" && {
+                    Header: field?.label,
+                    accessor: field?.name,
+                  }
+              ) || []
+          : []),
+        ...(permission?.update || permission?.view || permission?.delete
+          ? [actionHeader]
+          : []),
+      ];
+      
+      setSelectedColumns(JSON.parse(JSON.stringify(tempTableColumns)));
+      setColumns(tempTableColumns);
+      setTableColumns(JSON.parse(JSON.stringify(tempTableColumns)));
+      setIsLoding(false);
+    } catch (error) {
+      console.error("Error fetching custom data fields:", error);
+      toast.error("Failed to fetch data ", "error");
     }
+  };
 
     const handleDeleteLead = async (ids) => {
         try {
@@ -207,34 +326,95 @@ const Index = () => {
     return (
         <div>
             <Grid templateColumns="repeat(6, 1fr)" mb={3} gap={4}>
-                {!isLoding &&
-                    <GridItem colSpan={6}>
-                        <CommonCheckTable
-                            title={title}
-                            isLoding={isLoding}
-                            searchDisplay={searchDisplay}
-                            setSearchDisplay={setSearchDisplay}
-                            columnData={columns ?? []}
-                            dataColumn={dataColumn ?? []}
-                            allData={data ?? []}
-                            tableData={searchDisplay ? searchedDataOut : data}
-                            tableCustomFields={leadData?.[0]?.fields?.filter((field) => field?.isTableField === true) || []}
-                            access={permission}
-                            action={action}
-                            setAction={setAction}
-                            selectedColumns={selectedColumns}
-                            setSelectedColumns={setSelectedColumns}
-                            isOpen={isOpen}
-                            onClose={onclose}
-                            onOpen={onOpen}
-                            selectedValues={selectedValues}
-                            setSelectedValues={setSelectedValues}
-                            setDelete={setDelete}
-                            setIsImport={setIsImport}
-                        />
-                    </GridItem>
-                }
-            </Grid>
+        {!isLoding && (
+          <GridItem
+            colSpan={6}
+            display="flex"
+            alignItems="center"
+            justifyContent="space-between"
+          >
+            <Text fontSize="2xl" fontWeight="bold">
+              {title}
+            </Text>
+
+            {/* Buttons Section */}
+
+            <div style={{ display: "flex", gap: "8px" }}>
+              <button
+              onClick={() => handleFilterChange("hot")}
+                style={{
+                  backgroundColor: "red",
+                  color: "white",
+                  border: "none",
+                  padding: "8px 16px",
+                  cursor: "pointer",
+                  borderRadius: "4px",
+                }}
+              >
+                HOT
+              </button>
+              <button
+              onClick={() => handleFilterChange("warm")}
+                style={{
+                  backgroundColor: "orange",
+                  color: "white",
+                  border: "none",
+                  padding: "8px 16px",
+                  cursor: "pointer",
+                  borderRadius: "4px",
+                }}
+              >
+                WARM
+              </button>
+              <button
+             onClick={() => handleFilterChange("cold")}
+                style={{
+                  backgroundColor: "blue",
+                  color: "white",
+                  border: "none",
+                  padding: "8px 16px",
+                  cursor: "pointer",
+                  borderRadius: "4px",
+                }}
+              >
+                COLD
+              </button>
+            </div>
+          </GridItem>
+        )}
+
+        {!isLoding && (
+          <GridItem colSpan={6}>
+            <CommonCheckTable
+              // title={title}
+              isLoding={isLoding}
+              searchDisplay={searchDisplay}
+              setSearchDisplay={setSearchDisplay}
+              columnData={columns ?? []}
+              dataColumn={dataColumn ?? []}
+              allData={data ?? []}
+              tableData={searchDisplay ? searchedDataOut : data}
+              tableCustomFields={
+                leadData?.[0]?.fields?.filter(
+                  (field) => field?.isTableField === true
+                ) || []
+              }
+              access={permission}
+              action={action}
+              setAction={setAction}
+              selectedColumns={selectedColumns}
+              setSelectedColumns={setSelectedColumns}
+              isOpen={isOpen}
+              onClose={onclose}
+              onOpen={onOpen}
+              selectedValues={selectedValues}
+              setSelectedValues={setSelectedValues}
+              setDelete={setDelete}
+              setIsImport={setIsImport}
+            />
+          </GridItem>
+        )}
+      </Grid>
 
             {isOpen && <Add isOpen={isOpen} size={size} leadData={leadData[0]} onClose={onClose} setAction={setAction} action={action} />}
             {edit && <Edit isOpen={edit} size={size} leadData={leadData[0]} selectedId={selectedId} setSelectedId={setSelectedId} onClose={setEdit} setAction={setAction} moduleId={leadData?.[0]?._id} />}

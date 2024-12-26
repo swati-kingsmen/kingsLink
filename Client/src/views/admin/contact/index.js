@@ -1,7 +1,7 @@
 
 import { useEffect, useState } from 'react';
 import { useNavigate } from "react-router-dom";
-import { Grid, GridItem, Text, useDisclosure, Menu, MenuButton, MenuItem, MenuList } from '@chakra-ui/react';
+import { Grid, GridItem, Text, useDisclosure, Menu, MenuButton, MenuItem, MenuList, Select } from '@chakra-ui/react';
 import { DeleteIcon, ViewIcon, EditIcon, EmailIcon, PhoneIcon } from "@chakra-ui/icons";
 import { CiMenuKebab } from "react-icons/ci";
 import { getApi } from 'services/api';
@@ -18,6 +18,7 @@ import { fetchContactData } from '../../../redux/contactSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchContactCustomFiled } from '../../../redux//contactCustomFiledSlice';
 import { toast } from 'react-toastify';
+import { putApi } from 'services/api';
 
 const Index = () => {
     const title = "Contacts";
@@ -62,6 +63,52 @@ const Index = () => {
         }
     }
 
+// Updated setStatusData function
+const setStatusData = async (cell, e) => {
+    try {
+        setIsLoding(true);
+        
+        // Get the selected status value
+        const name = e.target.value; 
+
+        // Update lead status in the backend
+        let response = await putApi(
+            `api/lead/changeStatus/${cell.original._id}`,
+            { leadStatus: name }
+        );
+
+        if (response.status === 200) {
+            setAction((prev) => !prev); // Trigger re-render or update UI
+        }
+    } catch (e) {
+        console.log(e);
+    } finally {
+        setIsLoding(false);
+    }
+};
+
+  // Updated changeStatus function
+  const changeStatus = (row) => {
+    // Get the 'name' value from the row
+    const name = row.original.name;
+  
+    //status logic
+    switch (name) {
+      case "RNR":
+      case "Not Interested":
+      case "Busy":
+      case "Not Reachable":
+        return "cold"; // Return 'cold' status
+      case "Follow Up":
+      case "Site Visit Scheduled":
+        return "warm"; // Return 'warm' status
+      case "Site Visited Done":
+        return "hot"; // Return 'hot' status
+      default:
+        return "pending"; // Default case if no match
+    }
+  };
+
     const fetchCustomDataFields = async () => {
         setIsLoding(true);
         // const result = await getApi(`api/custom-field/?moduleName=Contacts`);
@@ -97,10 +144,45 @@ const Index = () => {
         };
         const tempTableColumns = [
             { Header: "#", accessor: "_id", isSortable: false, width: 10 },
-            ...(result?.payload?.data?.[0]?.fields || []) // Check if fields is defined, if not, use empty array
-                .filter(field => field?.isTableField === true) // Filter out fields where isTableField is true
-                .map(field => ({ Header: field?.label, accessor: field?.name })),
-            ...(permission?.update || permission?.view || permission?.delete ? [actionHeader] : [])
+            {
+                Header: "Status",
+                accessor: "leadStatus",
+                isSortable: true,
+                center: true,
+                cell: ({ row }) => (
+                  <div className="selectOpt">
+                    <Select
+                      defaultValue={row.original.leadStatus} // Set the default value from the row's leadStatus
+                      className={changeStatus(row)} // Custom class based on the status
+                      onChange={(e) => setStatusData(row, e)} // Handle the status change
+                      height={7}
+                      width={130}
+                      value={row.original.leadStatus} // Set the current status value
+                      style={{ fontSize: "14px" }}
+                    >
+                      {/* Dynamically show options depending on the current status */}
+                      {changeStatus(row) !== "cold" && <option value="cold">Cold</option>}
+                      {changeStatus(row) !== "warm" && <option value="warm">Warm</option>}
+                      {changeStatus(row) !== "hot" && <option value="hot">Hot</option>}
+                    </Select>
+                  </div>
+                ),
+              },
+      
+              ...(result?.payload?.data && result.payload.data.length > 0
+                ? result.payload.data[0]?.fields
+                    ?.filter((field) => field?.isTableField === true)
+                    ?.map(
+                      (field) =>
+                        field?.name !== "leadStatus" && {
+                          Header: field?.label,
+                          accessor: field?.name,
+                        }
+                    ) || []
+                : []),
+              ...(permission?.update || permission?.view || permission?.delete
+                ? [actionHeader]
+                : []),
         ];
 
 

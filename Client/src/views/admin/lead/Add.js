@@ -10,7 +10,7 @@ import * as yup from 'yup'
 
 const Add = (props) => {
     const [isLoding, setIsLoding] = useState(false)
-
+console.log(props)
 
     const initialFieldValues = Object.fromEntries(
         (props?.leadData?.fields || []).map(field => [field?.name, ''])

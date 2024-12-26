@@ -34,10 +34,25 @@ const addMany = async (req, res) => {
 
 const changeStatus = async (req, res) => {
     try {
-        const { leadStatus } = req.body;
-        let result = await Lead.findOneAndUpdate(
+        // Get the name value from the request
+        const { name } = req.body;  
+        let leadStatus;
+
+        // logic to set the lead status based on name
+        if (["RNR", "Not Interested", "Busy", "Not Reachable"].includes(name)) {
+            leadStatus = "cold";
+        } else if (["Follow Up", "Site Visit Scheduled"].includes(name)) {
+            leadStatus = "warm";
+        } else if (name === "Site Visited Done") {
+            leadStatus = "hot";
+        } else {
+            return res.status(400).json({ success: false, message: "Invalid name for status update" });
+        }
+
+        // Update the lead's status
+        const result = await Lead.findOneAndUpdate(
             { _id: req.params.id },
-            { $set: { leadStatus: leadStatus } },
+            { $set: { leadStatus } },
             { new: true }
         );
 
@@ -45,12 +60,12 @@ const changeStatus = async (req, res) => {
             return res.status(404).json({ success: false, message: 'Lead not found' });
         }
 
-        return res.status(200).json({ message: "Status Change Successfully", result });
+        return res.status(200).json({ message: "Status updated successfully", result });
     } catch (err) {
         console.error('Failed to change status:', err);
-        return res.status(400).json({ error: 'Failed to change status : ', err });
+        return res.status(400).json({ error: 'Failed to change status', err });
     }
-}
+};
 
 const add = async (req, res) => {
     try {

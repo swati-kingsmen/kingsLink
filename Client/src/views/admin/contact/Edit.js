@@ -8,9 +8,11 @@ import { getApi, putApi } from 'services/api';
 import { generateValidationSchema } from '../../../utils';
 import * as yup from 'yup'
 import CustomForm from 'utils/customForm';
+import { postApi } from 'services/api';
 
 const Edit = (props) => {
     const { data } = props;
+    console.log(props.contactData,".......gfdsf.............")
     const [isLoding, setIsLoding] = useState(false)
     const initialFieldValues = Object.fromEntries(
         (props?.contactData?.fields || []).map(field => [field?.name, ''])
@@ -76,20 +78,77 @@ const Edit = (props) => {
 
     const { errors, touched, values, handleBlur, handleChange, handleSubmit, setFieldValue, } = formik
 
+    // const EditData = async () => {
+    //     try {
+    //         setIsLoding(true)
+    //         let response = await putApi(`api/form/edit/${props?.selectedId || param.id}`, { ...values, moduleId: props?.moduleId })
+    //         if (response.status === 200) {
+    //             props.onClose();
+    //             props.setAction((pre) => !pre)
+    //         }
+    //     } catch (e) {
+    //         console.log(e);
+    //     } finally {
+    //         setIsLoding(false)
+    //     }
+    // };
+
     const EditData = async () => {
         try {
-            setIsLoding(true)
-            let response = await putApi(`api/form/edit/${props?.selectedId || param.id}`, { ...values, moduleId: props?.moduleId })
+            setIsLoding(true);
+    
+            // Update the contact
+            let response = await putApi(
+                `api/form/edit/${props?.selectedId || param.id}`,
+                { ...values, moduleId: props?.moduleId }
+            );
+    
             if (response.status === 200) {
+                console.log(response.status);
+                // Check the contact status for conversion
+                const selectedStatus = values?.leadStatus?.toLowerCase();
+                console.log(".....",values); // Assuming 'status' is part of `values`
+                const leadStatuses = ["warm", "hot"]; // Conditions for lead conversion
+    
+                if (leadStatuses.includes(selectedStatus)) {
+                    console.log("..........................status..................", selectedStatus);
+                    console.log("email", values?.email);
+                    // Prepare lead data based on contact values
+                    const leadData = {
+                        ...values, // Spread all the contact fields
+                        status: selectedStatus,
+                        leadName: values?.ContactName,
+                        leadEmail: values?.email,
+                        leadPhoneNumber: values?.phoneNumber,
+                        budget: 0,
+                        type: "",
+                        location: "",
+                        source: "Contact Conversion", // Optional: Add any specific flag
+                        createdBy: JSON.parse(localStorage.getItem("user"))._id, // Add user details if needed
+                    };
+    
+                    // Post the new lead
+                    let leadResponse = await postApi(`api/lead/add`, leadData);
+    
+                    if (leadResponse.status === 200) {
+                        console.log("Lead added successfully from contact.");
+                    } else {
+                        console.error("Failed to add the lead:", leadResponse);
+                    }
+                }
+    
+                // Close the modal and refresh the action
                 props.onClose();
-                props.setAction((pre) => !pre)
+                props.setAction((prev) => !prev);
             }
-        } catch (e) {
-            console.log(e);
+        } catch (error) {
+            console.error("Error during contact edit and lead conversion:", error);
         } finally {
-            setIsLoding(false)
+            setIsLoding(false);
         }
     };
+    
+    
 
     const handleClose = () => {
         props.onClose(false)
