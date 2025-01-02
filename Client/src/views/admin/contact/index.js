@@ -94,19 +94,29 @@ const setStatusData = async (cell, e) => {
   
     //status logic
     switch (name) {
-      case "RNR":
-      case "Not Interested":
-      case "Busy":
-      case "Not Reachable":
-        return "cold"; // Return 'cold' status
-      case "Follow Up":
-      case "Site Visit Scheduled":
-        return "warm"; // Return 'warm' status
-      case "Site Visited Done":
-        return "hot"; // Return 'hot' status
-      default:
-        return "pending"; // Default case if no match
+        case "RNR":
+        case "Not Interested":
+        case "Busy":
+        case "Not Reachable":
+        case "Currently Not Interested":
+        case "Lead Lost":
+            return "cold"; // Return 'cold' status for these remarks
+    
+        case "Follow Up":
+        case "Site Visit Schedule":
+        case "Site Visit Reschedule":
+        case "Video Call Schedule":
+        case "Video Call Reschedule":
+            return "warm"; // Return 'warm' status for these remarks
+    
+        case "Site Visited Done":
+        case "Booking Done":
+            return "hot"; // Return 'hot' status for these remarks
+    
+        default:
+            return "pending"; // Default case if no match, returns 'pending' status
     }
+    
   };
 
     const fetchCustomDataFields = async () => {

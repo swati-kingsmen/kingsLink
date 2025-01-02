@@ -28,16 +28,16 @@ const colors = {
 		900: 'rgba(0, 0, 0, 0.92)',
 	},
 	gray: {
-		50: '#F7FAFC',
-		100: '#FAFCFE',
-		200: '#E2E8F0',
-		300: '#CBD5E0',
-		400: '#A0AEC0',
-		500: '#718096',
-		600: '#4A5568',
-		700: '#2D3748',
-		800: '#1A202C',
-		900: '#171923',
+		50: '#F4E0D9', // Chocolate Brown lighter shade
+		100: '#E3C2B0', // Chocolate Brown mid shade
+		200: '#D1A48A', // Chocolate Brown
+		300: '#BF8764', // Chocolate Brown darker shade
+		400: '#AD6A3E', // Chocolate Brown base
+		500: '#8D6E63', // Chocolate Brown
+		600: '#74584F', // Chocolate Brown dark shade
+		700: '#5C423E', // Chocolate Brown darkest
+		800: '#4B2F2B', // Chocolate Brown
+		900: '#3A1D17', // Chocolate Brown darkest
 	},
 	red: {
 		50: '#fee9e7',
@@ -220,16 +220,16 @@ const colors = {
 		900: '#003F5E',
 	},
 	brand: {
-		50: '#bbb4f4',
-		100: '#9387ed',
-		200: '#7f71ea',
-		300: '#6b5be6',
-		400: '#5745e3',
-		500: 'rgba(53, 32, 213, 1)',
-		600: '#2a19a9',
-		700: '#241692',
-		800: '#1f137c',
-		900: '#140c50',
+		50: '#F4E0D9', // Chocolate Brown lighter shade
+		100: '#E3C2B0', // Chocolate Brown mid shade
+		200: '#D1A48A', // Chocolate Brown
+		300: '#BF8764', // Chocolate Brown darker shade
+		400: '#AD6A3E', // Chocolate Brown base
+		500: '#8D6E63', // Chocolate Brown
+		600: '#74584F', // Chocolate Brown dark shade
+		700: '#5C423E', // Chocolate Brown darkest
+		800: '#4B2F2B', // Chocolate Brown
+		900: '#3A1D17', // Chocolate Brown darkest
 	},
 	brandScheme: {
 		50: '#7959f5',
@@ -256,29 +256,29 @@ const colors = {
 		900: '#000000',
 	},
 	secondaryGray: {
-		50: '#ffffff',
-		100: '#fbfbfc',
-		200: '#ecedf1',
-		300: '#dddfe7',
-		400: '#ced2dc',
-		500: 'rgba(176, 182, 199, 1)',
-		600: '#929ab2',
-		700: '#838da7',
-		800: '#747f9d',
-		900: '#5c6682',
+		50: '#FAF4EF', // Off-White Cream light shade
+		100: '#F1E6D3', // Off-White Cream mid shade
+		200: '#E9D8B8', // Off-White Cream
+		300: '#D9C59D', // Off-White Cream darker shade
+		400: '#C9B284', // Off-White Cream base
+		500: '#FAF4EF', // Off-White Cream
+		600: '#C6B199', // Off-White Cream dark shade
+		700: '#B59F7E', // Off-White Cream darkest
+		800: '#A38D64', // Off-White Cream darkest shade
+		900: '#8C7A52', // Off-White Cream darkest
 	},
 	navy: {
-		50: '#4bfad4',
-		100: '#19f9c8',
-		200: '#07f1be',
-		300: '#06d8ab',
-		400: '#05c097',
-		500: 'rgba(4, 142, 112, 1)',
-		600: '#035c49',
-		700: '#024435',
-		800: '#012b22',
-		900: '#000000',
+		50: '#F4E0D9', // Chocolate Brown lighter shade
+		100: '#E3C2B0', // Chocolate Brown mid shade
+		200: '#D1A48A', // Chocolate Brown
+		300: '#BF8764', // Chocolate Brown darker shade
+		400: '#AD6A3E', // Chocolate Brown base
+		500: '#8D6E63', // Chocolate Brown
+		600: '#74584F', // Chocolate Brown dark shade
+		700: '#5C423E', // Chocolate Brown darkest
+		800: '#4B2F2B', // Chocolate Brown
+		900: '#3A1D17', // Chocolate Brown darkest
 	},
 }
 
-export default colors
+export default colors;

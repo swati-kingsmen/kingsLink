@@ -1,9 +1,36 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Grid, GridItem, Heading, FormLabel, Input, Text, InputLeftElement, InputGroup, Checkbox, Select, RadioGroup, Radio, HStack, Slider, SliderTrack, SliderFilledTrack, SliderThumb, Box } from '@chakra-ui/react'; // Assuming you are using Chakra UI
 import { HSeparator } from 'components/separator/Separator';
 import { EmailIcon, PhoneIcon, StarIcon } from '@chakra-ui/icons';
 
 const CustomForm = ({ moduleData, values, handleChange, handleBlur, errors, touched, setFieldValue }) => {
+    const [selectedOptions, setSelectedOptions] = useState({});
+
+    useEffect(() => {
+        moduleData.fields.forEach(field => {
+            if (field.type === 'select' && values[field.name]) {
+                setSelectedOptions(prev => ({
+                    ...prev,
+                    [field.name]: values[field.name]
+                }));
+            }
+        });
+    }, [moduleData.fields, values]);
+
+    const handleSelectChange = (e, field) => {
+        const value = e.target.value;
+        setSelectedOptions(prev => ({
+            ...prev,
+            [field.name]: value
+        }));
+        handleChange(e);
+        const selectedField = moduleData.fields.find(f => f.name === field.name);
+        const selectedOptionDetails = selectedField.options.find(option => option.value === value);
+        if (selectedOptionDetails && selectedOptionDetails.requiresDatePicker) {
+            setFieldValue(`${field.name}Date`, '');
+        }
+    };
+
     return (
         <Grid templateColumns="repeat(12, 1fr)" gap={3}>
             {moduleData?.headings?.length > 0 ?
@@ -49,22 +76,37 @@ const CustomForm = ({ moduleData, values, handleChange, handleBlur, errors, touc
                                                             ))}
                                                         </HStack>
                                                     </RadioGroup> :
-                                                    field.type === 'select' ? <Select
-                                                        fontSize='sm'
-                                                        id={field.name}
-                                                        name={field.name}
-                                                        onChange={handleChange}
-                                                        onBlur={handleBlur}
-                                                        value={values[field.name]}
-                                                        fontWeight='500'
-                                                        borderColor={errors?.[field?.name] && touched?.[field?.name] ? "red.300" : null}
-                                                    >
-                                                        {field.options.map(option => (
-                                                            <option key={option._id} value={option.value}>
-                                                                {option.name}
-                                                            </option>
-                                                        ))}
-                                                    </Select> : field.type === 'check' ? <Checkbox
+                                                    field.type === 'select' ? <>
+                                                        <Select
+                                                            fontSize='sm'
+                                                            id={field.name}
+                                                            name={field.name}
+                                                            onChange={(e) => handleSelectChange(e, field)}
+                                                            onBlur={handleBlur}
+                                                            value={values[field.name]}
+                                                            fontWeight='500'
+                                                            borderColor={errors?.[field?.name] && touched?.[field?.name] ? "red.300" : null}
+                                                        >
+                                                            {field.options.map(option => (
+                                                                <option key={option._id} value={option.value}>
+                                                                    {option.name}
+                                                                </option>
+                                                            ))}
+                                                        </Select>
+                                                        {selectedOptions[field.name] && field.options.find(option => option.value === selectedOptions[field.name])?.requiresDatePicker && (
+                                                            <Input
+                                                                mt={2}
+                                                                type="date"
+                                                                id={`${field.name}Date`}
+                                                                name={`${field.name}Date`}
+                                                                onChange={handleChange}
+                                                                onBlur={handleBlur}
+                                                                value={values[`${field.name}Date`]}
+                                                                fontWeight='500'
+                                                                borderColor={errors?.[`${field.name}Date`] && touched?.[`${field.name}Date`] ? "red.300" : null}
+                                                            />
+                                                        )}
+                                                    </> : field.type === 'check' ? <Checkbox
                                                         isChecked={values[field.name]}
                                                         onChange={() => setFieldValue(field.name, !values[field.name])}
                                                     >
@@ -135,23 +177,38 @@ const CustomForm = ({ moduleData, values, handleChange, handleBlur, errors, touc
                                                 ))}
                                             </HStack>
                                         </RadioGroup> :
-                                        field.type === 'select' ? <Select
-                                            fontSize='sm'
-                                            id={field.name}
-                                            name={field.name}
-                                            onChange={handleChange}
-                                            onBlur={handleBlur}
-                                            value={values[field.name]}
-                                            fontWeight='500'
-                                            borderColor={errors?.[field?.name] && touched?.[field?.name] ? "red.300" : null}
-                                        >
-                                            <option value="">Select {field.label}</option>
-                                            {field.options.map(option => (
-                                                <option key={option._id} value={option.value}>
-                                                    {option.name}
-                                                </option>
-                                            ))}
-                                        </Select> : field.type === 'check' ? <Checkbox
+                                        field.type === 'select' ? <>
+                                            <Select
+                                                fontSize='sm'
+                                                id={field.name}
+                                                name={field.name}
+                                                onChange={(e) => handleSelectChange(e, field)}
+                                                onBlur={handleBlur}
+                                                value={values[field.name]}
+                                                fontWeight='500'
+                                                borderColor={errors?.[field?.name] && touched?.[field?.name] ? "red.300" : null}
+                                            >
+                                                <option value="">Select {field.label}</option>
+                                                {field.options.map(option => (
+                                                    <option key={option._id} value={option.value}>
+                                                        {option.name}
+                                                    </option>
+                                                ))}
+                                            </Select>
+                                            {selectedOptions[field.name] && field.options.find(option => option.value === selectedOptions[field.name])?.requiresDatePicker && (
+                                                <Input
+                                                    mt={2}
+                                                    type="date"
+                                                    id={`${field.name}Date`}
+                                                    name={`${field.name}Date`}
+                                                    onChange={handleChange}
+                                                    onBlur={handleBlur}
+                                                    value={values[`${field.name}Date`]}
+                                                    fontWeight='500'
+                                                    borderColor={errors?.[`${field.name}Date`] && touched?.[`${field.name}Date`] ? "red.300" : null}
+                                                />
+                                            )}
+                                        </> : field.type === 'check' ? <Checkbox
                                             isChecked={values[field.name]}
                                             onChange={() => setFieldValue(field.name, !values[field.name])}
                                         >
@@ -217,23 +274,38 @@ const CustomForm = ({ moduleData, values, handleChange, handleBlur, errors, touc
                                             ))}
                                         </HStack>
                                     </RadioGroup> :
-                                    field.type === 'select' ? <Select
-                                        fontSize='sm'
-                                        id={field.name}
-                                        name={field.name}
-                                        onChange={handleChange}
-                                        onBlur={handleBlur}
-                                        value={values[field.name]}
-                                        fontWeight='500'
-                                        borderColor={errors?.[field?.name] && touched?.[field?.name] ? "red.300" : null}
-                                    >
-                                        <option value="">Select {field.label}</option>
-                                        {field.options.map(option => (
-                                            <option key={option._id} value={option.value}>
-                                                {option.name}
-                                            </option>
-                                        ))}
-                                    </Select> : field.type === 'check' ? <Checkbox
+                                    field.type === 'select' ? <>
+                                        <Select
+                                            fontSize='sm'
+                                            id={field.name}
+                                            name={field.name}
+                                            onChange={(e) => handleSelectChange(e, field)}
+                                            onBlur={handleBlur}
+                                            value={values[field.name]}
+                                            fontWeight='500'
+                                            borderColor={errors?.[field?.name] && touched?.[field?.name] ? "red.300" : null}
+                                        >
+                                            <option value="">Select {field.label}</option>
+                                            {field.options.map(option => (
+                                                <option key={option._id} value={option.value}>
+                                                    {option.name}
+                                                </option>
+                                            ))}
+                                        </Select>
+                                        {selectedOptions[field.name] && field.options.find(option => option.value === selectedOptions[field.name])?.requiresDatePicker && (
+                                            <Input
+                                                mt={2}
+                                                type="date"
+                                                id={`${field.name}Date`}
+                                                name={`${field.name}Date`}
+                                                onChange={handleChange}
+                                                onBlur={handleBlur}
+                                                value={values[`${field.name}Date`]}
+                                                fontWeight='500'
+                                                borderColor={errors?.[`${field.name}Date`] && touched?.[`${field.name}Date`] ? "red.300" : null}
+                                            />
+                                        )}
+                                    </> : field.type === 'check' ? <Checkbox
                                         isChecked={values[field.name]}
                                         onChange={() => setFieldValue(field.name, !values[field.name])}
                                     >

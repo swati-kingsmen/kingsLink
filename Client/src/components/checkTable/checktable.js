@@ -67,7 +67,7 @@ const CommonCheckTable = (props) => {
         setPageSize,
         state: { pageIndex, pageSize }
     } = tableInstance;
-
+console.log(getTableBodyProps)
     if (pageOptions && pageOptions?.length > 0 && pageOptions?.length < gopageValue) {
         setGopageValue(pageOptions.length)
     }
@@ -334,7 +334,7 @@ const CommonCheckTable = (props) => {
                             {customSearch !== false && <CustomSearchInput setSearchbox={setSearchboxOutside ? setSearchboxOutside : setSearchbox} setDisplaySearchData={setSearchboxOutside ? props.setSearchDisplay : setDisplaySearchData} searchbox={searchboxOutside ? searchboxOutside : searchbox} allData={allData} dataColumn={columns} onSearch={handleSearch} setGetTagValues={props.setGetTagValuesOutside ? props.setGetTagValuesOutside : setGetTagValues} setGopageValue={setGopageValue} />}
                             {
                                 AdvanceSearch ? AdvanceSearch : AdvanceSearch !== false &&
-                                    <Button variant="outline" colorScheme='brand' leftIcon={<SearchIcon />} mt={{ sm: "5px", md: "0" }} size="sm" onClick={() => setAdvaceSearch(true)}>Advance Search</Button>
+                                    <Button backgroundColor={"#8D6E63"}  color={"#fff"} variant="outline" colorScheme='' leftIcon={<SearchIcon />} mt={{ sm: "5px", md: "0" }} size="sm" onClick={() => setAdvaceSearch(true)}>Advance Search</Button>
                             }
                             {(searchDisplay || displaySearchData) ? <Button variant="outline" colorScheme='red' size="sm" ms={2} onClick={() => handleClear()}>Clear</Button> : ""}
                             {(selectedValues?.length > 0 && access?.delete && !deleteMany) && <DeleteIcon cursor={"pointer"} onClick={() => setDelete(true)} color={'red'} ms={2} />}
@@ -375,7 +375,7 @@ const CommonCheckTable = (props) => {
                                 </MenuList>
                             </Menu>}
                             {(access?.create || access === true)}
-                        {<Button onClick={() => handleClick()} size="sm" variant="brand" leftIcon={<AddIcon />}>Add New</Button>}
+                        {<Button backgroundColor={"#8D6E63"} color={"#fff"} onClick={() => handleClick()} size="sm" variant="" leftIcon={<AddIcon />}>Add New</Button>}
                         {BackButton && BackButton}
                     </GridItem>
                     <HStack spacing={4} mb={2}>

@@ -1,151 +1,3 @@
-// const contactFields = [
-//     {
-//         "name": "email",
-//         "label": "Email",
-//         "type": "email",
-//         "fixed": true,
-//         "delete": false,
-//         "belongsTo": null,
-//         "backendType": "String",
-//         "isTableField": true,
-//         "options": [],
-//         "validation": [
-//             {
-//                 "require": true,
-//                 "message": "",
-//             },
-//         ],
-//     },
-//     {
-//         "name": "ContactName",
-//         "label": "Name",
-//         "type": "text",
-//         "fixed": true,
-//         "delete": false,
-//         "belongsTo": null,
-//         "backendType": "String",
-//         "isTableField": true,
-//         "options": [],
-//         "validation": [
-//             {
-//                 "require": true,
-//                 "message": "",
-//             },
-//         ],
-//     },
-//     {
-//         "name": "leadStatus",
-//         "label": "Lead Status",
-//         "type": "select",
-//         "fixed": false,
-//         "delete": false,
-//         "belongsTo": null,
-//         "backendType": "Mixed",
-//         "isTableField": true,
-//         "options": [
-//             {
-//                 "name": "Active",
-//                 "value": "active",
-//             },
-//             {
-//                 "name": "Pending",
-//                 "value": "pending",
-//             },
-//             {
-//                 "name": "Sold",
-//                 "value": "sold",
-//             }
-//         ],
-//         "validation": [
-//             {
-//                 "message": "Invalid type value for Lead Status",
-//                 "formikType": "String",
-//             }
-//         ],
-//     },
-//     // {
-//     //     "name": "facebookProfile",
-//     //     "label": "Facebook",
-//     //     "type": "url",
-//     //     "fixed": true,
-//     //     "delete": false,
-//     //     "belongsTo": null,
-//     //     "backendType": "Mixed",
-//     //     "isTableField": false,
-//     //     "validation": [
-//     //         {
-//     //             "message": "Invalid type value for facebook",
-//     //             "formikType": "url",
-//     //         }
-//     //     ],
-//     // },
-//     // {
-//     //     "name": "linkedInProfile",
-//     //     "label": "LinkedIn Profile URL",
-//     //     "type": "url",
-//     //     "fixed": true,
-//     //     "delete": false,
-//     //     "belongsTo": null,
-//     //     "backendType": "Mixed",
-//     //     "isTableField": false,
-//     //     "validation": [
-//     //         {
-//     //             "message": "Invalid type value for LinkedIn Profile URL",
-//     //             "formikType": "url",
-//     //         }
-//     //     ],
-//     // },
-//     // {
-//     //     "name": "twitterHandle",
-//     //     "label": "Twitter Username",
-//     //     "type": "url",
-//     //     "fixed": true,
-//     //     "delete": false,
-//     //     "belongsTo": null,
-//     //     "backendType": "Mixed",
-//     //     "isTableField": false,
-//     //     "validation": [
-//     //         {
-//     //             "message": "Invalid type value for Twitter Username",
-//     //             "formikType": "url",
-//     //         }
-//     //     ],
-//     // },
-//     // {
-//     //     "name": "otherProfiles",
-//     //     "label": "Other Social Media Profiles URL",
-//     //     "type": "url",
-//     //     "fixed": true,
-//     //     "delete": false,
-//     //     "belongsTo": null,
-//     //     "backendType": "Mixed",
-//     //     "isTableField": false,
-//     //     "validation": [
-//     //         {
-//     //             "message": "Invalid type value for Other Social Media Profiles URL",
-//     //             "formikType": "url",
-//     //         }
-//     //     ],
-//     // },
-//     {
-//         "name": "phoneNumber",
-//         "label": "Phone Number",
-//         "type": "tel",
-//         "fixed": true,
-//         "delete": false,
-//         "belongsTo": null,
-//         "backendType": "Number",
-//         "isTableField": true,
-//         "options": [],
-//         "validation": [
-//             {
-//                 "require": true,
-//                 "message": "",
-//             },
-//         ],
-//     },
-// ];
-// exports.contactFields = contactFields;
 const contactFields = [
     {
         "name": "ContactName",
@@ -198,11 +50,12 @@ const contactFields = [
             },
         ],
     },
+
     {
-        "name": "leadStatus",
+        "name": "leadRemark",
         "label": "Lead Remark",
         "type": "select",
-        "fixed": false,
+        "fixed": false,  
         "delete": false,
         "belongsTo": null,
         "backendType": "Mixed",
@@ -210,32 +63,130 @@ const contactFields = [
         "options": [
             {
                 "name": "RNR", 
-                "value": "cold",
+                "value": "rnr",
             },
             {
                 "name": "Not Interested", 
-                "value": "cold",
+                "value": "notInterested",
             },
             {
                 "name": "Busy", 
-                "value": "cold",
+                "value": "busy",
             },
             {
                 "name": "Not Reachable",
-                "value": "cold",
+                "value": "notReachable",
             },
             {
                 "name": "Follow Up", 
-                "value": "warm",
+                "value": "followUp",
             },
             {
-                "name": "Site Visit Scheduled", 
-                "value": "warm",
+                "name": "Site Visit Schedule", 
+                "value": "visitScheduled",
+                "requiresDatePicker": true,
             },
             {
                 "name": "Site Visited Done", 
-                "value": "hot",
+                "value": "visitedDone",
             },
+            {
+                "name": "Booking Done", 
+                "value": "bookingDone",
+            },
+            {
+                "name": "Site Visit Reschedule", 
+                "value": "visitReschedule",
+                "requiresDatePicker": true,
+            },
+            {
+                "name": "Video Call Schedule", 
+                "value": "videoCallScheduled",
+                "requiresDatePicker": true,
+            },
+            {
+                "name": "Video Call Reschedule", 
+                "value": "videoCallReschedule",
+                "requiresDatePicker": true,
+            },
+            {
+                "name": "Currenlty Not Interested", 
+                "value": "currentlyNotInterested",
+            },
+            {
+                "name": "Lead Lost",
+                "value": "leadLost",
+            }
+          
+        ],
+        "validation": [
+            {
+                "message": "Invalid type value for Lead Remark",
+                "formikType": "String",
+            }
+        ],
+    },
+    // {
+    //     "name": "leadStatus",
+    //     "label": "Lead Status",
+    //     "type": "select",
+    //     "fixed": false,
+    //     "delete": false,
+    //     "belongsTo": null,
+    //     "backendType": "Mixed",
+    //     "isTableField": true,
+    //     "options": [
+    //         {
+    //             "name": "HOT",
+    //             "value": "hot",
+    //         },
+    //         {
+    //             "name": "WARM",
+    //             "value": "warm",
+    //         },
+    //         {
+    //             "name": "COLD",
+    //             "value": "cold",
+    //         }
+    //     ],
+    //     "validation": [
+    //         {
+    //             "require": false,
+    //             "message": "Invalid type value for Lead Status",
+    //             "formikType": "String",
+    //         }
+    //     ],
+    // },
+
+    {
+        "name": "origin",
+        "label": "Lead Origin",
+        "type": "select",
+        "fixed": false,
+        "delete": false,
+        "belongsTo": null,
+        "backendType": "Mixed",
+        "isTableField": true,
+        "options": [
+          
+            {
+                "name": "Marketing", 
+                "value": "marketing",
+            },
+            {
+                "name": "Housing", 
+                "value": "housing",
+            },
+            {
+                "name": "Website",
+                "value": "website",
+            },
+            {
+                "name": "Others", 
+                "value": "others",
+            },
+           
+           
           
         ],
         "validation": [
@@ -245,5 +196,7 @@ const contactFields = [
             }
         ],
     },
+
 ];
+
 exports.contactFields = contactFields;

@@ -93,62 +93,225 @@ const Edit = (props) => {
     //     }
     // };
 
-    const EditData = async () => {
-        try {
-            setIsLoding(true);
+
+// first approch
+    // const EditData = async () => {
+    //     try {
+    //         setIsLoding(true);
     
-            // Update the contact
-            let response = await putApi(
-                `api/form/edit/${props?.selectedId || param.id}`,
-                { ...values, moduleId: props?.moduleId }
-            );
+    //         // Update the contact
+    //         let response = await putApi(
+    //             `api/form/edit/${props?.selectedId || param.id}`,
+    //             { ...values, moduleId: props?.moduleId }
+    //         );
     
-            if (response.status === 200) {
-                console.log(response.status);
-                // Check the contact status for conversion
-                const selectedStatus = values?.leadStatus?.toLowerCase();
-                console.log(".....",values); // Assuming 'status' is part of `values`
-                const leadStatuses = ["warm", "hot"]; // Conditions for lead conversion
+    //         if (response.status === 200) {
+    //             console.log(response.status);
+    //             // Check the contact status for conversion
+    //             const selectedRemark = values?.leadRemark?.toLowerCase();
+    //             console.log(".....",values); // Assuming 'status' is part of `values`
+    //             const leadStatuses = ["warm", "hot"]; // Conditions for lead conversion
     
-                if (leadStatuses.includes(selectedStatus)) {
-                    console.log("..........................status..................", selectedStatus);
-                    console.log("email", values?.email);
-                    // Prepare lead data based on contact values
-                    const leadData = {
-                        ...values, // Spread all the contact fields
-                        status: selectedStatus,
-                        leadName: values?.ContactName,
-                        leadEmail: values?.email,
-                        leadPhoneNumber: values?.phoneNumber,
-                        budget: 0,
-                        type: "",
-                        location: "",
-                        source: "Contact Conversion", // Optional: Add any specific flag
-                        createdBy: JSON.parse(localStorage.getItem("user"))._id, // Add user details if needed
-                    };
+
+    //             if (leadStatuses.includes(selectedRemark)) {
+    //                 console.log("..........................status..................", selectedRemark);
+    //                 console.log("email", values?.email);
+    //                 // Prepare lead data based on contact values
+    //                 const leadData = {
+    //                     ...values, // Spread all the contact fields
+    //                     status: selectedRemark,
+    //                     leadName: values?.ContactName,
+    //                     leadEmail: values?.email,
+    //                     leadRemark: values?.leadRemark,
+    //                     leadPhoneNumber: values?.phoneNumber,
+    //                     budget: 0,
+    //                     type: "",
+    //                     location: "",
+    //                     source: "Contact Conversion", // Optional: Add any specific flag
+    //                     createdBy: JSON.parse(localStorage.getItem("user"))._id, // Add user details if needed
+    //                 };
     
-                    // Post the new lead
-                    let leadResponse = await postApi(`api/lead/add`, leadData);
+    //                 // Post the new lead
+    //                 let leadResponse = await postApi(`api/lead/add`, leadData);
     
-                    if (leadResponse.status === 200) {
-                        console.log("Lead added successfully from contact.");
-                    } else {
-                        console.error("Failed to add the lead:", leadResponse);
-                    }
-                }
+    //                 if (leadResponse.status === 200) {
+    //                     console.log("Lead added successfully from contact.");
+    //                 } else {
+    //                     console.error("Failed to add the lead:", leadResponse);
+    //                 }
+    //             }
     
-                // Close the modal and refresh the action
-                props.onClose();
-                props.setAction((prev) => !prev);
+    //             // Close the modal and refresh the action
+    //             props.onClose();
+    //             props.setAction((prev) => !prev);
+    //         }
+    //     } catch (error) {
+    //         console.error("Error during contact edit and lead conversion:", error);
+    //     } finally {
+    //         setIsLoding(false);
+    //     }
+    // };
+    
+// second approch
+    // const EditData = async () => {
+    //     try {
+    //         setIsLoding(true);
+    
+    //         // Update the contact
+    //         let response = await putApi(
+    //             `api/form/edit/${props?.selectedId || param.id}`,
+    //             { ...values, moduleId: props?.moduleId }
+    //         );
+    
+    //         if (response.status === 200) {
+    //             console.log(response.status);
+    //             // Get the leadRemark value from the contact data
+    //             const selectedRemark = values?.leadRemark;
+    
+    //             console.log(".....", values); // Assuming 'leadRemark' is part of `values`
+                
+    //             // Define mappings for leadRemark to leadStatus
+    //             const statusMappings = {
+    //                 cold: ["RNR", "Not Interested", "Busy", "Not Reachable", "Currenlty Not Interested", "Lead Lost"],
+    //                 warm: ["Follow Up", "Site Visit Schedule", "Site Visit Reschedule", "Video Call Schedule", "Video Call Reschedule"],
+    //                 hot: ["Site Visited Done", "Booking Done"]
+    //             };
+    
+    //             // Determine the leadStatus based on the leadRemark
+    //             let leadStatus;
+    //             for (const [status, remarks] of Object.entries(statusMappings)) {
+    //                 if (remarks.includes(selectedRemark)) {
+    //                     leadStatus = status;
+    //                     break;
+    //                 }
+    //             }
+    
+    //             // Check if the leadRemark results in a valid conversion status ("warm" or "hot")
+    //             const validStatusesForConversion = ["warm", "hot"];
+                
+    //             if (leadStatus && validStatusesForConversion.includes(leadStatus)) {
+    //                 console.log("..........................status..................", leadStatus);
+    //                 console.log("email", values?.email);
+    
+    //                 // Prepare lead data based on contact values
+    //                 const leadData = {
+    //                     ...values, // Spread all the contact fields
+    //                     status: leadStatus, // Use the dynamically determined leadStatus
+    //                     leadName: values?.ContactName,
+    //                     leadEmail: values?.email,
+    //                     leadPhoneNumber: values?.phoneNumber,
+    //                     budget: 0,  // Optional: You can dynamically set this if needed
+    //                     type: "",   // Optional: You can dynamically set this if needed
+    //                     location: "", // Optional: You can dynamically set this if needed
+    //                     source: "Contact Conversion", // Flag the source as "Contact Conversion"
+    //                     createdBy: JSON.parse(localStorage.getItem("user"))._id, // Include user details if needed
+    //                 };
+    
+    //                 // Post the new lead data
+    //                 let leadResponse = await postApi(`api/lead/add`, leadData);
+    
+    //                 if (leadResponse.status === 200) {
+    //                     console.log("Lead added successfully from contact.");
+    //                 } else {
+    //                     console.error("Failed to add the lead:", leadResponse);
+    //                 }
+    //             }
+    
+    //             // Close the modal and refresh the action
+    //             props.onClose();
+    //             props.setAction((prev) => !prev);
+    //         }
+    //     } catch (error) {
+    //         console.error("Error during contact edit and lead conversion:", error);
+    //     } finally {
+    //         setIsLoding(false);
+    //     }
+    // };
+    
+// third approch
+const EditData = async () => {
+    try {
+        setIsLoding(true);
+
+        // Update the contact
+        let response = await putApi(
+            `api/form/edit/${props?.selectedId || param.id}`,
+            { ...values, moduleId: props?.moduleId }
+        );
+
+        if (response.status === 200) {
+            console.log(response.status);
+
+            // Determine the lead status based on the leadRemark
+            const selectedRemark = values?.leadRemark;
+            let selectedStatus;
+            console.log("selected remark...............",selectedRemark)
+            switch (selectedRemark) {
+                case "rnr":
+                case "notInterested":
+                case "busy":
+                case "notReachable":
+                case "Currently Not Interested":
+                case "Lead Lost":
+                    selectedStatus = "cold"; // Return 'cold' status
+                    break;
+
+                case "followUp":
+                case "visitScheduled":
+                case "visitReschedule":
+                case "videoCallScheduled":
+                case "videoCallReschedule":
+                    selectedStatus = "warm"; // Return 'warm' status
+                    break;
+
+                case "visitedDone":
+                case "bookingDone":
+                    selectedStatus = "hot"; // Return 'hot' status
+                    break;
+
+                default:
+                    selectedStatus = "pending"; // Default case if no match
+                    break;
             }
-        } catch (error) {
-            console.error("Error during contact edit and lead conversion:", error);
-        } finally {
-            setIsLoding(false);
+
+            console.log("Selected Status: ", selectedStatus);
+
+            // Prepare lead data based on contact values
+            const leadData = {
+                ...values, // Spread all the contact fields
+                leadStatus: selectedStatus, // Set the determined status
+                leadName: values?.ContactName,
+                leadEmail: values?.email,
+                leadRemark: values?.leadRemark,
+                leadPhoneNumber: values?.phoneNumber,
+                origin: values?.origin,
+                budget: 0,
+                type: "",
+                location: "",
+                source: "Contact Conversion", // Optional: Add any specific flag
+                createdBy: JSON.parse(localStorage.getItem("user"))._id, // Add user details if needed
+            };
+
+            // Post the new lead
+            let leadResponse = await postApi(`api/lead/add`, leadData);
+
+            if (leadResponse.status === 200) {
+                console.log("Lead added successfully from contact.");
+            } else {
+                console.error("Failed to add the lead:", leadResponse);
+            }
+
+            // Close the modal and refresh the action
+            props.onClose();
+            props.setAction((prev) => !prev);
         }
-    };
-    
-    
+    } catch (error) {
+        console.error("Error during contact edit and lead conversion:", error);
+    } finally {
+        setIsLoding(false);
+    }
+};
+
 
     const handleClose = () => {
         props.onClose(false)

@@ -172,7 +172,7 @@ option {
   border: 1px solid #4d8f3a !important;
 }
 
-.toDo {
+/* .toDo {
   background-color: #ebf5ff !important;
   color: #1f7eeb !important;
   border: 1px solid #1f7eeb !important;
@@ -182,6 +182,17 @@ option {
   background-color: #eee7fc !important;
   color: #7038db !important;
   border: 1px solid #7038db !important;
+} */
+.toDo {
+  background-color: #FAF4EF !important; /* Off-White Cream */
+  color: #8D6E63 !important; /* Chocolate Brown */
+  border: 1px solid #8D6E63 !important; /* Chocolate Brown */
+}
+
+.inProgress {
+  background-color: #D7CCC8 !important; /* Taupe Gray */
+  color: #2C2C2C !important; /* Graphite Black */
+  border: 1px solid #2C2C2C !important; /* Graphite Black */
 }
 
 .chakra-checkbox[disabled] .chakra-checkbox__control {

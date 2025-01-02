@@ -1,7 +1,133 @@
 const leadFields = [
+{
+    "name": "leadName",
+    "label": "Lead Name",
+    "type": "name",
+    "fixed": true,
+    "delete": false,
+    "belongsTo": null,
+    "backendType": "String",
+    "isTableField": true,
+    "options": [],
+    "validation": [
+        {
+            "require": true,
+            "message": "",
+        },
+    ],
+},
+{
+    "name": "leadEmail",
+    "label": "Lead Email",
+    "type": "email",
+    "fixed": true,
+    "delete": false,
+    "belongsTo": null,
+    "backendType": "String",
+    "isTableField": true,
+    "options": [],
+    "validation": [
+        {
+            "require": true,
+            "message": "",
+        },
+    ],
+},
+{
+    "name": "leadPhoneNumber",
+    "label": "Lead Phone Number",
+    "type": "tel",
+    "fixed": true,
+    "delete": false,
+    "belongsTo": null,
+    "backendType": "String",
+    "isTableField": true,
+    "options": [],
+    "validation": [
+        {
+            "require": true,
+            "message": "",
+        },
+    ],
+},
+    {
+        "name": "leadRemark",
+        "label": "Lead Remark",
+        "type": "select",
+        "fixed": false,  
+        "delete": false,
+        "belongsTo": null,
+        "backendType": "Mixed",
+        "isTableField": true,
+        "options": [
+            {
+                "name": "RNR", 
+                "value": "rnr",
+            },
+            {
+                "name": "Not Interested", 
+                "value": "notInterested",
+            },
+            {
+                "name": "Busy", 
+                "value": "busy",
+            },
+            {
+                "name": "Not Reachable",
+                "value": "notReachable",
+            },
+            {
+                "name": "Follow Up", 
+                "value": "followUp",
+            },
+            {
+                "name": "Site Visit Schedule", 
+                "value": "visitScheduled",
+                "requiresDatePicker": true,
+            },
+            {
+                "name": "Site Visited Done", 
+                "value": "visitedDone",
+            },
+            {
+                "name": "Booking Done", 
+                "value": "bookingDone",
+            },
+            {
+                "name": "Site Visit Reschedule", 
+                "value": "visitReschedule",
+                "requiresDatePicker": true,
+            },
+            {
+                "name": "Video Call Schedule", 
+                "value": "videoCallScheduled",
+                "requiresDatePicker": true,
+            },
+            {
+                "name": "Video Call Reschedule", 
+                "value": "videoCallReschedule",
+                "requiresDatePicker": true,
+            },
+            {
+                "name": "Currenlty Not Interested", 
+                "value": "currentlyNotInterested",
+            },
+            {
+                "name": "Lead Lost",
+                "value": "leadLost",
+            }
+          
+        ],
+        "validation": [
+            {
+                "message": "Invalid type value for Lead Remark",
+                "formikType": "String",
+            }
+        ],
+    },
     {
         "name": "leadStatus",
-        "label": "Lead Remark",
+        "label": "Lead Status",
         "type": "select",
         "fixed": false,
         "delete": false,
@@ -10,34 +136,17 @@ const leadFields = [
         "isTableField": true,
         "options": [
             {
-                "name": "RNR", 
-                "value": "cold",
-            },
-            {
-                "name": "Not Interested", 
-                "value": "cold",
-            },
-            {
-                "name": "Busy", 
-                "value": "cold",
-            },
-            {
-                "name": "Not Reachable",
-                "value": "cold",
-            },
-            {
-                "name": "Follow Up", 
-                "value": "warm",
-            },
-            {
-                "name": "Site Visit Scheduled", 
-                "value": "warm",
-            },
-            {
-                "name": "Site Visited Done", 
+                "name": "HOT",
                 "value": "hot",
             },
-          
+            {
+                "name": "WARM",
+                "value": "warm",
+            },
+            {
+                "name": "COLD",
+                "value": "cold",
+            }
         ],
         "validation": [
             {
@@ -47,56 +156,44 @@ const leadFields = [
         ],
     },
     {
-        "name": "leadName",
-        "label": "Lead Name",
-        "type": "name",
-        "fixed": true,
+        "name": "origin",
+        "label": "Lead Origin",
+        "type": "select",
+        "fixed": false,
         "delete": false,
         "belongsTo": null,
-        "backendType": "String",
+        "backendType": "Mixed",
         "isTableField": true,
-        "options": [],
+        "options": [
+          
+            {
+                "name": "Marketing", 
+                "value": "marketing",
+            },
+            {
+                "name": "Housing", 
+                "value": "housing",
+            },
+            {
+                "name": "Website",
+                "value": "website",
+            },
+            {
+                "name": "Others", 
+                "value": "others",
+            },
+           
+           
+          
+        ],
         "validation": [
             {
-                "require": true,
-                "message": "",
-            },
+                "message": "Invalid type value for Lead Status",
+                "formikType": "String",
+            }
         ],
     },
-    {
-        "name": "leadEmail",
-        "label": "Lead Email",
-        "type": "email",
-        "fixed": true,
-        "delete": false,
-        "belongsTo": null,
-        "backendType": "String",
-        "isTableField": true,
-        "options": [],
-        "validation": [
-            {
-                "require": true,
-                "message": "",
-            },
-        ],
-    },
-    {
-        "name": "leadPhoneNumber",
-        "label": "Lead Phone Number",
-        "type": "tel",
-        "fixed": true,
-        "delete": false,
-        "belongsTo": null,
-        "backendType": "String",
-        "isTableField": true,
-        "options": [],
-        "validation": [
-            {
-                "require": true,
-                "message": "",
-            },
-        ],
-    },
+
     {
         name: "budget",
         label: "Budget",

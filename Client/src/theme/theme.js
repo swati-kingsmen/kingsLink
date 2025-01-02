@@ -10,9 +10,11 @@ import { switchStyles } from "./components/switch";
 import { linkStyles } from "./components/link";
 import { breakpoints } from "./foundations/breakpoints";
 import { globalStyles } from "./styles";
+import colors from "./foundations/colors";
 export default extendTheme(
   { breakpoints }, // Breakpoints
   globalStyles,
+  colors,
   badgeStyles, // badge styles
   buttonStyles, // button styles
   linkStyles, // link styles

@@ -31,6 +31,7 @@ export default function ContactTable(props) {
   const columns = useMemo(() => columnsData, [columnsData]);
   const data = useMemo(() => tableData, [tableData]);
   const user = JSON.parse(localStorage.getItem("user"))
+  // console.log("user", user)
   const [gopageValue, setGopageValue] = useState()
 
   const tableInstance = useTable(
