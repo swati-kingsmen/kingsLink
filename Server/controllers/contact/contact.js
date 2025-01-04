@@ -73,9 +73,9 @@ const add = async (req, res) => {
 
         // Define the mappings between lead remarks and their statuses
         const statusMappings = {
-            cold: ["RNR", "Not Interested", "Busy", "Not Reachable", "Currenlty Not Interested", "Lead Lost"],
-            warm: ["Follow Up", "Site Visit Schedule", "Site Visit Reschedule", "Video Call Schedule", "Video Call Reschedule"],
-            hot: ["Site Visited Done", "Booking Done"]
+            cold: ["rnr", "notInterested", "busy", "notReachable", "currenltyNotInterested", "leadLost"],
+            warm: ["followUp", "visitScheduled", "visitReschedule", "videoCallScheduled", "videoCallReschedule"],
+            hot: ["visitedDone", "bookingDone"]
         };
 
         // Check if the leadRemark is valid and determine the leadStatus

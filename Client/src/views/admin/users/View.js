@@ -106,7 +106,7 @@ const View = () => {
                     <AddEditUser isOpen={isOpen} onClose={handleClose} data={data} selectedId={param?.id} userAction={userAction} setUserAction={setUserAction} fetchData={fetchData} />
                     <CommonDeleteModel isOpen={deleteModel} onClose={() => setDelete(false)} type='User' handleDeleteData={handleDeleteClick} ids={''} selectedValues={param.id} />
 
-                    <Card >
+                    <Card height="auto">
                         <Grid templateColumns={'repeat(12, 1fr)'} gap={4}>
                             <GridItem colSpan={{ base: 12, md: 6 }}>
                                 <Heading size="md" mb={3} textTransform={'capitalize'}>
@@ -114,7 +114,7 @@ const View = () => {
                                 </Heading>
 
                             </GridItem>
-                            <GridItem colSpan={{ base: 12, md: 6 }} >
+                            <GridItem colSpan={{ base: 12, md: 6 }}>
                                 <Flex justifyContent={{ base: 'start', sm: 'start', md: 'end' }}>
                                     {data?.role === 'superAdmin' && <Menu>
                                         <MenuButton variant="outline" colorScheme='blackAlpha' size="sm" va mr={2.5} as={Button} rightIcon={<ChevronDownIcon />}>
@@ -159,12 +159,12 @@ const View = () => {
                         </Grid>
                     </Card>
 
-                    {data?.role !== 'superAdmin' && <Card mt={3}>
+                    {data?.role !== 'superAdmin' && <Card mt={3} height="auto">
                         <RoleTable fetchData={fetchData} columnsData={RoleColumn ?? []} roleModal={roleModal} setRoleModal={setRoleModal} tableData={data?.roles || []} title={'Role'} />
                     </Card>}
                     <RoleModal fetchData={fetchData} isOpen={roleModal} onClose={setRoleModal} columnsData={RoleColumn ?? []} id={param.id} tableData={roleData ?? []} interestRoles={data?.roles.map((item) => item._id)} />
 
-                    <Card mt={3}>
+                    <Card mt={3} height="auto">
                         <Grid templateColumns="repeat(6, 1fr)" gap={1}>
                             <GridItem colStart={6} >
                                 <Flex justifyContent={"right"}>

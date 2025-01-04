@@ -44,7 +44,7 @@ const changeStatus = async (req, res) => {
         } else if (["Follow Up", "Site Visit Scheduled"].includes(name)) {
             leadStatus = "warm";
         } else if (name === "Site Visited Done") {
-            leadStatus = "hot";
+            leadStatus = "";
         } else {
             return res.status(400).json({ success: false, message: "Invalid name for status update" });
         }

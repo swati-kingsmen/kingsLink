@@ -66,7 +66,7 @@ const Report = React.lazy(() => import("views/admin/reports"));
 
 
 // Whatsapp
-const WhatsApp = React.lazy(() => import("views/admin/whatsapp"));
+const WhatsApp = React.lazy(() => import("views/admin/whatsapp/index"));
 
 // Auth Imports
 const SignInCentered = React.lazy(() => import("views/auth/signIn"));

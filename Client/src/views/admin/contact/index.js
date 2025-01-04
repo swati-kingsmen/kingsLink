@@ -1,7 +1,7 @@
 
 import { useEffect, useState } from 'react';
 import { useNavigate } from "react-router-dom";
-import { Grid, GridItem, Text, useDisclosure, Menu, MenuButton, MenuItem, MenuList, Select } from '@chakra-ui/react';
+import { Grid, GridItem, Text, useDisclosure, Menu, MenuButton, MenuItem, MenuList, Select, Tooltip } from '@chakra-ui/react';
 import { DeleteIcon, ViewIcon, EditIcon, EmailIcon, PhoneIcon } from "@chakra-ui/icons";
 import { CiMenuKebab } from "react-icons/ci";
 import { getApi } from 'services/api';
@@ -94,23 +94,23 @@ const setStatusData = async (cell, e) => {
   
     //status logic
     switch (name) {
-        case "RNR":
-        case "Not Interested":
+        case "rnr":
+        case "notInterested":
         case "Busy":
-        case "Not Reachable":
+        case "notReachable":
         case "Currently Not Interested":
-        case "Lead Lost":
+        case "leadLost":
             return "cold"; // Return 'cold' status for these remarks
     
-        case "Follow Up":
-        case "Site Visit Schedule":
-        case "Site Visit Reschedule":
-        case "Video Call Schedule":
-        case "Video Call Reschedule":
+        case "followUp":
+        case "visitScheduled":
+        case "visitReschedule":
+        case "videoCallScheduled":
+        case "videoCallReschedule":
             return "warm"; // Return 'warm' status for these remarks
     
-        case "Site Visited Done":
-        case "Booking Done":
+        case "visitedDone":
+        case "bookingDone":
             return "hot"; // Return 'hot' status for these remarks
     
         default:
@@ -128,30 +128,105 @@ const setStatusData = async (cell, e) => {
         } else {
             toast.error("Failed to fetch data", "error");
         }
+        // const actionHeader = {
+        //     Header: "Action", accessor: "action", isSortable: false, center: true,
+        //     cell: ({ row }) => (
+        //         <Text fontSize="md" fontWeight="900" textAlign={"center"} >
+        //             <Menu isLazy  >
+        //                 <MenuButton><CiMenuKebab /></MenuButton>
+        //                 <MenuList minW={'fit-content'} transform={"translate(1520px, 173px);"}>
+        //                     {permission?.update &&
+        //                         <MenuItem py={2.5} icon={<EditIcon fontSize={15} mb={1} />} onClick={() => { setEdit(true); setSelectedId(row?.values?._id); }}>Edit</MenuItem>}
+        //                     {callAccess?.create &&
+        //                         <MenuItem py={2.5} width={"165px"} onClick={() => { setPhoneRec(row?.original); setAddPhoneCall(true); setCallSelectedId(row?.values?._id); }} icon={<PhoneIcon fontSize={15} mb={1} />}>Create Call</MenuItem>}
+        //                     {emailAccess?.create &&
+        //                         <MenuItem py={2.5} width={"165px"} onClick={() => {
+        //                             handleOpenEmail(row?.values?._id, row?.original); setSelectedId(row?.values?._id)
+        //                         }} icon={<EmailIcon fontSize={15} mb={1} />}>Send Email</MenuItem>}
+        //                     {permission?.view &&
+        //                         <MenuItem py={2.5} color={'green'} icon={<ViewIcon mb={1} fontSize={15} />} onClick={() => { navigate(`/contactView/${row?.values?._id}`) }}>View</MenuItem>}
+        //                     {permission?.delete &&
+        //                         <MenuItem py={2.5} color={'red'} icon={<DeleteIcon fontSize={15} mb={1} />} onClick={() => { setDelete(true); setSelectedValues([row?.values?._id]); }}>Delete</MenuItem>}
+        //                 </MenuList>
+        //             </Menu>
+        //         </Text>
+        //     )
+        // };
+        
         const actionHeader = {
-            Header: "Action", accessor: "action", isSortable: false, center: true,
+            Header: "Action",
+            accessor: "action",
+            isSortable: false,
+            center: true,
             cell: ({ row }) => (
-                <Text fontSize="md" fontWeight="900" textAlign={"center"} >
-                    <Menu isLazy  >
-                        <MenuButton><CiMenuKebab /></MenuButton>
-                        <MenuList minW={'fit-content'} transform={"translate(1520px, 173px);"}>
-                            {permission?.update &&
-                                <MenuItem py={2.5} icon={<EditIcon fontSize={15} mb={1} />} onClick={() => { setEdit(true); setSelectedId(row?.values?._id); }}>Edit</MenuItem>}
-                            {callAccess?.create &&
-                                <MenuItem py={2.5} width={"165px"} onClick={() => { setPhoneRec(row?.original); setAddPhoneCall(true); setCallSelectedId(row?.values?._id); }} icon={<PhoneIcon fontSize={15} mb={1} />}>Create Call</MenuItem>}
-                            {emailAccess?.create &&
-                                <MenuItem py={2.5} width={"165px"} onClick={() => {
-                                    handleOpenEmail(row?.values?._id, row?.original); setSelectedId(row?.values?._id)
-                                }} icon={<EmailIcon fontSize={15} mb={1} />}>Send Email</MenuItem>}
-                            {permission?.view &&
-                                <MenuItem py={2.5} color={'green'} icon={<ViewIcon mb={1} fontSize={15} />} onClick={() => { navigate(`/contactView/${row?.values?._id}`) }}>View</MenuItem>}
-                            {permission?.delete &&
-                                <MenuItem py={2.5} color={'red'} icon={<DeleteIcon fontSize={15} mb={1} />} onClick={() => { setDelete(true); setSelectedValues([row?.values?._id]); }}>Delete</MenuItem>}
-                        </MenuList>
-                    </Menu>
+                <Text fontSize="md" fontWeight="900" textAlign={"center"} display="flex" gap="8px" justifyContent="center">
+                    {permission?.update && (
+                        <Tooltip label="Edit" fontSize="md">
+                            <EditIcon
+                                fontSize={20}
+                                cursor="pointer"
+                                onClick={() => {
+                                    setEdit(true);
+                                    setSelectedId(row?.values?._id);
+                                }}
+                            />
+                        </Tooltip>
+                    )}
+                    {callAccess?.create && (
+                        <Tooltip label="Create Call" fontSize="md">
+                            <PhoneIcon
+                                fontSize={20}
+                                cursor="pointer"
+                                onClick={() => {
+                                    setPhoneRec(row?.original);
+                                    setAddPhoneCall(true);
+                                    setCallSelectedId(row?.values?._id);
+                                }}
+                            />
+                        </Tooltip>
+                    )}
+                    {emailAccess?.create && (
+                        <Tooltip label="Send Email" fontSize="md">
+                            <EmailIcon
+                                fontSize={20}
+                                cursor="pointer"
+                                onClick={() => {
+                                    handleOpenEmail(row?.values?._id, row?.original);
+                                    setSelectedId(row?.values?._id);
+                                }}
+                            />
+                        </Tooltip>
+                    )}
+                    {permission?.view && (
+                        <Tooltip label="View" fontSize="md">
+                            <ViewIcon
+                                fontSize={20}
+                                color="green"
+                                cursor="pointer"
+                                onClick={() => {
+                                    navigate(`/contactView/${row?.values?._id}`);
+                                }}
+                            />
+                        </Tooltip>
+                    )}
+                    {permission?.delete && (
+                        <Tooltip label="Delete" fontSize="md">
+                            <DeleteIcon
+                                fontSize={20}
+                                color="red"
+                                cursor="pointer"
+                                onClick={() => {
+                                    setDelete(true);
+                                    setSelectedValues([row?.values?._id]);
+                                }}
+                            />
+                        </Tooltip>
+                    )}
                 </Text>
             )
         };
+        
+
         const tempTableColumns = [
             { Header: "#", accessor: "_id", isSortable: false, width: 10 },
             {
