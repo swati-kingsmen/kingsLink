@@ -1,20 +1,46 @@
 import { CloseIcon, PhoneIcon } from '@chakra-ui/icons';
-import { Button, FormLabel, Grid, GridItem, Icon, IconButton, Input, InputGroup, InputLeftElement, InputRightElement, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Text } from '@chakra-ui/react';
+import { Button, FormLabel, Grid, GridItem, Icon, IconButton, Input, InputGroup, InputLeftElement, InputRightElement, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Select, Text } from '@chakra-ui/react';
 import Spinner from 'components/spinner/Spinner';
 import { useFormik } from 'formik';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { MdOutlineRemoveRedEye } from 'react-icons/md';
 import { RiEyeCloseLine } from 'react-icons/ri';
 import { toast } from 'react-toastify';
 import { userSchema } from 'schema';
-import { putApi } from 'services/api';
-import { postApi } from 'services/api';
+import { putApi, postApi } from 'services/api';
 
 const AddEditUser = (props) => {
-    const { onClose, isOpen, setAction, data, userAction, userData, selectedId, fetchData, setUserAction } = props
-    const [isLoding, setIsLoding] = useState(false)
+    const {
+        onClose,
+        isOpen,
+        setAction,
+        data,
+        userAction,
+        userData = [], // Ensure userData has a default value
+        selectedId,
+        fetchData,
+        setUserAction,
+    } = props;
+
+    const [isLoding, setIsLoding] = useState(false);
     const [show, setShow] = React.useState(false);
-    const showPass = () => setShow(!show);
+    const [roles, setRoles] = useState([]);
+    const [managers, setManagers] = useState([]);
+
+    useEffect(() => {
+        let isMounted = true; // Track if the component is mounted
+        // Fetch roles and reporting managers
+        setRoles(['Admin', 'Manager', 'User']); // Replace with dynamic data if necessary
+
+        if (isMounted && userData?.length > 0) {
+            const filteredManagers = userData.filter((user) => user.roles?.includes('Manager'));
+            setManagers(filteredManagers);
+        }
+
+        return () => {
+            isMounted = false; // Cleanup to prevent memory leaks
+        };
+    }, [userData]);
 
     const initialValues = {
         firstName: userAction === "add" ? '' : data?.firstName,
@@ -22,208 +48,253 @@ const AddEditUser = (props) => {
         username: userAction === "add" ? '' : data?.username,
         phoneNumber: userAction === "add" ? '' : data?.phoneNumber,
         password: userAction === "add" ? '' : data?.password,
-    }
-    const user = JSON.parse(window.localStorage.getItem('user'))
+        roles: userAction === "add" ? '' : data?.roles || '',
+        reportingManager: userAction === "add" ? '' : data?.reportingManager || '',
+        rm: userAction === "add" ? [] : data?.rm || [],
+    };
 
     const formik = useFormik({
         initialValues: initialValues,
         validationSchema: userSchema,
         enableReinitialize: true,
         onSubmit: (values) => {
-            AddData();
+            AddData(values);
         },
     });
-    const { errors, touched, values, handleBlur, handleChange, handleSubmit, setFieldValue, resetForm } = formik
 
-    const AddData = async () => {
-        if (userAction === "add") {
+    const { errors, touched, values, handleBlur, handleChange, handleSubmit, setFieldValue, resetForm } = formik;
 
-            try {
-                setIsLoding(true)
-                let response = await postApi('api/user/register', values)
-                if (response && response.status === 200) {
-                    onClose();
-                    resetForm();
-                    setAction((pre) => !pre)
-                    setUserAction('')
-                } else {
-                    toast.error(response.response.data?.message)
-                }
-            } catch (e) {
-                console.log(e);
+    const AddData = async (values) => {
+        const payload = {
+            ...values,
+            rm: values.reportingManager ? [values.reportingManager] : [],
+        };
+
+        try {
+            setIsLoding(true);
+            let response;
+
+            if (userAction === "add") {
+                response = await postApi('api/user/register', payload);
+            } else if (userAction === "edit") {
+                response = await putApi(`api/user/edit/${selectedId}`, payload);
             }
-            finally {
-                setIsLoding(false)
-            }
-        } else if (userAction === "edit") {
-            try {
-                setIsLoding(true)
-                let response = await putApi(`api/user/edit/${selectedId}`, values)
-                if (response && response.status === 200) {
-                    // setEdit(false)
-                    fetchData()
-                    let updatedUserData = userData; // Create a copy of userData
-                    if (user?._id === selectedId) {
-                        if (updatedUserData && typeof updatedUserData === 'object') {
-                            // Create a new object with the updated firstName
-                            updatedUserData = {
-                                ...updatedUserData,
-                                firstName: values?.firstName,
-                                lastName: values?.lastName
-                            };
-                        }
 
-                        const updatedDataString = JSON.stringify(updatedUserData);
-                        localStorage.setItem('user', updatedDataString);
-                        // dispatch(setUser(updatedDataString));
-                    }
-
-
-                    // dispatch(fetchRoles(user?._id))
-                    onClose();
-                    setUserAction('')
-                    setAction((pre) => !pre)
-                } else {
-                    toast.error(response.response.data?.message)
-                }
-            } catch (e) {
-                console.log(e);
+            if (response && response.status === 200) {
+                toast.success(`${userAction === "add" ? 'User added' : 'User updated'} successfully`);
+                fetchData();
+                onClose();
+                setAction((prev) => !prev);
+                setUserAction('');
+                resetForm();
+            } else {
+                toast.error(response.response?.data?.message || 'An error occurred');
             }
-            finally {
-                setIsLoding(false)
-            }
+        } catch (error) {
+            console.error(error);
+            toast.error('Failed to save user data');
+        } finally {
+            setIsLoding(false);
         }
     };
+
+    const showPass = () => setShow(!show);
 
     return (
         <Modal isOpen={isOpen} isCentered>
             <ModalOverlay />
             <ModalContent>
-                <ModalHeader justifyContent='space-between' display='flex' >
+                <ModalHeader justifyContent="space-between" display="flex">
                     {userAction === "add" ? "Add" : "Edit"} User
                     <IconButton onClick={onClose} icon={<CloseIcon />} />
                 </ModalHeader>
                 <ModalBody>
-
                     <Grid templateColumns="repeat(12, 1fr)" gap={3}>
-
+                        {/* First Name */}
                         <GridItem colSpan={{ base: 12 }}>
-                            <FormLabel display='flex' ms='4px' fontSize='sm' fontWeight='500' mb='8px'>
-                                First Name<Text color={"red"}>*</Text>
+                            <FormLabel>
+                                First Name <Text color="red">*</Text>
                             </FormLabel>
                             <Input
-                                fontSize='sm'
-                                onChange={handleChange} onBlur={handleBlur}
-                                value={values.firstName}
                                 name="firstName"
-                                placeholder='firstName'
-                                fontWeight='500'
-                                borderColor={errors.firstName && touched.firstName ? "red.300" : null}
+                                value={values.firstName}
+                                onChange={handleChange}
+                                onBlur={handleBlur}
+                                placeholder="First Name"
+                                borderColor={errors.firstName && touched.firstName ? 'red.300' : undefined}
                             />
-                            <Text mb='10px' color={'red'}> {errors.firstName && touched.firstName && errors.firstName}</Text>
+                            <Text color="red">{errors.firstName && touched.firstName && errors.firstName}</Text>
                         </GridItem>
+
+                        {/* Last Name */}
                         <GridItem colSpan={{ base: 12 }}>
-                            <FormLabel display='flex' ms='4px' fontSize='sm' fontWeight='500' mb='8px'>
-                                Last Name
-                            </FormLabel>
+                            <FormLabel>Last Name</FormLabel>
                             <Input
-                                fontSize='sm'
-                                onChange={handleChange} onBlur={handleBlur}
-                                value={values.lastName}
                                 name="lastName"
-                                placeholder='Last Name'
-                                fontWeight='500'
-                                borderColor={errors.lastName && touched.lastName ? "red.300" : null}
+                                value={values.lastName}
+                                onChange={handleChange}
+                                onBlur={handleBlur}
+                                placeholder="Last Name"
+                                borderColor={errors.lastName && touched.lastName ? 'red.300' : undefined}
                             />
-                            <Text mb='10px' color={'red'}> {errors.lastName && touched.lastName && errors.lastName}</Text>
+                            <Text color="red">{errors.lastName && touched.lastName && errors.lastName}</Text>
                         </GridItem>
+
+                        {/* Email */}
                         <GridItem colSpan={{ base: 12 }}>
-                            <FormLabel display='flex' ms='4px' fontSize='sm' fontWeight='500' mb='8px'>
-                                Email<Text color={"red"}>*</Text>
+                            <FormLabel>
+                                Email <Text color="red">*</Text>
                             </FormLabel>
                             <Input
-                                fontSize='sm'
-                                type='email'
-                                onChange={handleChange} onBlur={handleBlur}
-                                value={values.username}
                                 name="username"
+                                value={values.username}
+                                onChange={handleChange}
+                                onBlur={handleBlur}
                                 disabled={userAction === 'edit'}
-                                placeholder='Email Address'
-                                fontWeight='500'
-                                borderColor={errors.username && touched.username ? "red.300" : null}
+                                placeholder="Email"
+                                borderColor={errors.username && touched.username ? 'red.300' : undefined}
                             />
-                            <Text mb='10px' color={'red'}> {errors.username && touched.username && errors.username}</Text>
+                            <Text color="red">{errors.username && touched.username && errors.username}</Text>
                         </GridItem>
+
+                        {/* Roles */}
                         <GridItem colSpan={{ base: 12 }}>
-                            <FormLabel display='flex' ms='4px' fontSize='sm' fontWeight='500' mb='8px'>
-                                Phone Number<Text color={"red"}>*</Text>
+                            <FormLabel>
+                                Role <Text color="red">*</Text>
+                            </FormLabel>
+                            <Select
+                                name="roles"
+                                value={values.roles}
+                                onChange={(e) => {
+                                    handleChange(e);
+                                    if (e.target.value !== 'User') {
+                                        setFieldValue('reportingManager', '');
+                                        setFieldValue('rm', []);
+                                    }
+                                }}
+                                onBlur={handleBlur}
+                                placeholder="Select Role"
+                                borderColor={errors.roles && touched.roles ? 'red.300' : undefined}
+                            >
+                                {roles.map((role) => (
+                                    <option key={role} value={role}>
+                                        {role}
+                                    </option>
+                                ))}
+                            </Select>
+                            <Text color="red">{errors.roles && touched.roles && errors.roles}</Text>
+                        </GridItem>
+
+                        {/* Reporting Manager */}
+                        {values.roles === 'User' && (
+                            <GridItem colSpan={{ base: 12 }}>
+                                <FormLabel>
+                                    Reporting Manager <Text color="red">*</Text>
+                                </FormLabel>
+                                <Select
+                                    name="reportingManager"
+                                    value={values.reportingManager}
+                                    onChange={(e) => {
+                                        handleChange(e);
+                                        setFieldValue('rm', e.target.value ? [e.target.value] : []);
+                                    }}
+                                    onBlur={handleBlur}
+                                    placeholder="Select Reporting Manager"
+                                    borderColor={
+                                        errors.reportingManager && touched.reportingManager
+                                            ? 'red.300'
+                                            : undefined
+                                    }
+                                >
+                                    {managers.map((manager) => (
+                                        <option key={manager.id} value={manager.id}>
+                                            {manager.firstName} {manager.lastName}
+                                        </option>
+                                    ))}
+                                </Select>
+                                <Text color="red">
+                                    {errors.reportingManager && touched.reportingManager && errors.reportingManager}
+                                </Text>
+                            </GridItem>
+                        )}
+
+                        {/* Phone Number */}
+                        <GridItem colSpan={{ base: 12 }}>
+                            <FormLabel>
+                                Phone Number <Text color="red">*</Text>
                             </FormLabel>
                             <InputGroup>
-                                <InputLeftElement
-                                    pointerEvents="none"
-                                    children={<PhoneIcon color="gray.300" borderRadius="16px" />}
-                                />
-                                <Input type="tel"
-                                    fontSize='sm'
-                                    onChange={handleChange} onBlur={handleBlur}
-                                    value={values.phoneNumber}
+                                <InputLeftElement pointerEvents="none">
+                                    <PhoneIcon color="gray.300" />
+                                </InputLeftElement>
+                                <Input
                                     name="phoneNumber"
-                                    fontWeight='500'
-                                    borderColor={errors.phoneNumber && touched.phoneNumber ? "red.300" : null}
-                                    placeholder="Phone number" borderRadius="16px" />
+                                    value={values.phoneNumber}
+                                    onChange={handleChange}
+                                    onBlur={handleBlur}
+                                    placeholder="Phone Number"
+                                    borderColor={
+                                        errors.phoneNumber && touched.phoneNumber ? 'red.300' : undefined
+                                    }
+                                />
                             </InputGroup>
-                            <Text mb='10px' color={'red'}>{errors.phoneNumber && touched.phoneNumber && errors.phoneNumber}</Text>
+                            <Text color="red">{errors.phoneNumber && touched.phoneNumber && errors.phoneNumber}</Text>
                         </GridItem>
-                        {
-                            userAction !== "edit" &&
+
+                        {/* Password */}
+                        {userAction === 'add' && (
                             <GridItem colSpan={{ base: 12 }}>
-                                <FormLabel display='flex' ms='4px' fontSize='sm' fontWeight='500' mb='8px'>
-                                    Password
-                                </FormLabel>
-                                <InputGroup size='md'>
+                                <FormLabel>Password</FormLabel>
+                                <InputGroup>
                                     <Input
-                                        isRequired={true}
-                                        fontSize='sm'
-                                        placeholder='Enter Your Password'
-                                        name='password'
-                                        size='lg'
-                                        variant='auth'
-                                        type={show ? "text" : "password"}
-                                        value={values.password} onChange={handleChange} onBlur={handleBlur}
-                                        borderColor={errors.password && touched.password ? "red.300" : null}
-                                        className={errors.password && touched.password ? "isInvalid" : null}
+                                        name="password"
+                                        value={values.password}
+                                        onChange={handleChange}
+                                        onBlur={handleBlur}
+                                        type={show ? 'text' : 'password'}
+                                        placeholder="Password"
+                                        borderColor={
+                                            errors.password && touched.password ? 'red.300' : undefined
+                                        }
                                     />
-                                    <InputRightElement display='flex' alignItems='center' mt='4px'>
+                                    <InputRightElement>
                                         <Icon
-                                            color={'gray.400'}
-                                            _hover={{ cursor: "pointer" }}
                                             as={show ? RiEyeCloseLine : MdOutlineRemoveRedEye}
                                             onClick={showPass}
+                                            cursor="pointer"
                                         />
                                     </InputRightElement>
                                 </InputGroup>
-                                <Text mb='10px' color={'red'}> {errors.password && touched.password && errors.password}</Text>
+                                <Text color="red">{errors.password && touched.password && errors.password}</Text>
                             </GridItem>
-
-                        }
+                        )}
                     </Grid>
-
-
                 </ModalBody>
                 <ModalFooter>
-                    <Button variant='brand' size="sm" disabled={isLoding ? true : false} onClick={handleSubmit}>{isLoding ? <Spinner /> : 'Save'}</Button>
-                    <Button sx={{
-                        marginLeft: 2,
-                        textTransform: "capitalize",
-                    }} variant="outline"
-                        colorScheme="red" size="sm" onClick={() => {
-                            formik.resetForm()
-                            onClose()
-                        }}>Close</Button>
+                    <Button
+                        variant="brand"
+                        isLoading={isLoding}
+                        onClick={handleSubmit}
+                        size="sm"
+                    >
+                        Save
+                    </Button>
+                    <Button
+                        variant="outline"
+                        colorScheme="red"
+                        size="sm"
+                        ml={2}
+                        onClick={() => {
+                            resetForm();
+                            onClose();
+                        }}
+                    >
+                        Close
+                    </Button>
                 </ModalFooter>
             </ModalContent>
         </Modal>
-    )
-}
+    );
+};
 
-export default AddEditUser
+export default AddEditUser;

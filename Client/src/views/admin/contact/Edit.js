@@ -17,6 +17,7 @@ const Edit = (props) => {
     const initialFieldValues = Object.fromEntries(
         (props?.contactData?.fields || []).map(field => [field?.name, ''])
     );
+    console.log(initialFieldValues,"............initialFieldValues............")
 
     //     lastName: "",
     //     title: "",

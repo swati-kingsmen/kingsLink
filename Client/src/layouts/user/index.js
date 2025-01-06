@@ -26,6 +26,7 @@ const UserView = React.lazy(() => import("views/admin/users/View"));
 // Custom Chakra theme
 export default function User(props) {
     const { ...rest } = props;
+    console.log('User', props);
     // states and functions
     const [fixed] = useState(false);
     const [toggleSidebar, setToggleSidebar] = useState(false);

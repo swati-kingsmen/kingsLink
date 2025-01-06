@@ -85,30 +85,6 @@ const routes = [
     component: MainDashboard,
   },
   // ========================== Admin Layout ==========================
-  // ------------- lead Routes ------------------------
-  {
-    name: "Leads",
-    layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-    path: "/lead",
-    icon: <Icon as={MdLeaderboard} width='20px' height='20px' color='inherit' />,
-    component: Lead,
-  },
-  {
-    name: "Leads",
-    layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-    under: "lead",
-    parentName: "Leads",
-    path: "/leadView/:id",
-    component: LeadView,
-  },
-  {
-    name: "Lead Import",
-    layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-    under: "lead",
-    parentName: "Leads",
-    path: "/leadImport",
-    component: LeadImport,
-  },
   // --------------- contact Routes --------------------
   {
     name: "Contacts",
@@ -133,6 +109,30 @@ const routes = [
     parentName: "Contacts",
     path: "/contactImport",
     component: ContactImport,
+  },
+  // ------------- lead Routes ------------------------
+  {
+    name: "Leads",
+    layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+    path: "/lead",
+    icon: <Icon as={MdLeaderboard} width='20px' height='20px' color='inherit' />,
+    component: Lead,
+  },
+  {
+    name: "Leads",
+    layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+    under: "lead",
+    parentName: "Leads",
+    path: "/leadView/:id",
+    component: LeadView,
+  },
+  {
+    name: "Lead Import",
+    layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+    under: "lead",
+    parentName: "Leads",
+    path: "/leadImport",
+    component: LeadImport,
   },
   // ------------- Property Routes ------------------------
   {
@@ -179,21 +179,21 @@ const routes = [
   //   component: Communication,
   // },
   // ------------- Task Routes ------------------------
-  {
-    name: "Tasks",
-    layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-    path: "/task",
-    icon: <Icon as={FaTasks} width='20px' height='20px' color='inherit' />,
-    component: Task,
-  },
-  {
-    name: "Tasks",
-    layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-    under: "task",
-    parentName: "Tasks",
-    path: "/view/:id",
-    component: TaskView,
-  },
+  // {
+  //   name: "Tasks",
+  //   layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+  //   path: "/task",
+  //   icon: <Icon as={FaTasks} width='20px' height='20px' color='inherit' />,
+  //   component: Task,
+  // },
+  // {
+  //   name: "Tasks",
+  //   layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+  //   under: "task",
+  //   parentName: "Tasks",
+  //   path: "/view/:id",
+  //   component: TaskView,
+  // },
   // ------------- Meeting Routes ------------------------
   {
     name: "Meetings",
@@ -272,13 +272,13 @@ const routes = [
     component: Calender,
   },
   // ------------- Payments Routes ------------------------
-  {
-    name: "Payments",
-    layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-    path: "/payments",
-    icon: <Icon as={FaRupeeSign} width='20px' height='20px' color='inherit' />,
-    component: Payments,
-  },
+  // {
+  //   name: "Payments",
+  //   layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+  //   path: "/payments",
+  //   icon: <Icon as={FaRupeeSign} width='20px' height='20px' color='inherit' />,
+  //   component: Payments,
+  // },
 
   // ------------- Roles Routes ------------------------
   {
