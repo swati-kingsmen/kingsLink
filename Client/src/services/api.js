@@ -24,6 +24,7 @@ export const postApi = async (path, data, login) => {
     }
 }
 export const putApi = async (path, data, id) => {
+    console.log(data)
     try {
         let result = await axios.put(constant.baseUrl + path, data, {
             headers: {

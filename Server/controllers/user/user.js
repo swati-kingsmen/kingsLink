@@ -27,24 +27,52 @@ const adminRegister = async (req, res) => {
 // User Registration
 const register = async (req, res) => {
     try {
-        const { username, password, firstName, lastName, phoneNumber } = req.body;
-        const user = await User.findOne({ username: username })
+        const { username, password, firstName, lastName, phoneNumber, assignedManager, designation } = req.body;
+
+        // Check if a user with the given username already exists
+        const user = await User.findOne({ username: username });
 
         if (user) {
-            return res.status(401).json({ message: "user already exist please try another email" })
+            return res.status(401).json({ message: "User already exists, please try another email" });
         } else {
             // Hash the password
             const hashedPassword = await bcrypt.hash(password, 10);
+
             // Create a new user
-            const user = new User({ username, password: hashedPassword, firstName, lastName, phoneNumber, createdDate: new Date() });
+            const newUser = new User({
+                username,
+                password: hashedPassword,
+                firstName,
+                lastName,
+                phoneNumber,
+                assignedManager, // Changed field name from employeeId
+                designation, // Changed field name from employeeRole
+                createdDate: new Date(),
+            });
+
             // Save the user to the database
-            await user.save();
-            res.status(200).json({ message: 'User created successfully' });
+            await newUser.save();
+
+            // Return the created user data
+            res.status(200).json({
+                message: 'User created successfully',
+                user: {
+                    username: newUser.username,
+                    firstName: newUser.firstName,
+                    lastName: newUser.lastName,
+                    phoneNumber: newUser.phoneNumber,
+                    assignedManager: newUser.assignedManager,
+                    designation: newUser.designation,
+                    createdDate: newUser.createdDate,
+                }
+            });
         }
     } catch (error) {
-        res.status(500).json({ error });
+        res.status(500).json({ error: error.message || error });
     }
-}
+};
+
+
 
 const index = async (req, res) => {
     try {
@@ -130,9 +158,11 @@ const deleteMany = async (req, res) => {
 }
 
 const edit = async (req, res) => {
+   
     try {
-        let { username, firstName, lastName, phoneNumber } = req.body
-
+        let { username, firstName, lastName, phoneNumber, designation, assignedManager, assignedEmployees } = req.body;
+        console.log("Helloo-----------------", assignedManager)
+        // Update user data
         let result = await User.updateOne(
             { _id: req.params.id },
             {
@@ -142,12 +172,31 @@ const edit = async (req, res) => {
             }
         );
 
+        // If the designation is 'RM' and an assignedManager is provided
+        if (designation === "rm" && assignedManager) {
+            // Find the manager by assignedManager ID
+            const manager = await User.findById(assignedManager);
+            console.log(manager, 'manager--------------------')
+
+            if (manager) {
+                // Update the manager's assignedEmployees array by adding the current user's ID
+                manager.assignedEmployees.push(assignedEmployees);
+
+                // Save the updated manager data
+                await manager.save();
+                console.log(`Manager's assignedEmployees array updated for ${manager.username}`);
+            } else {
+                return res.status(404).json({ error: 'Manager not found' });
+            }
+        }
+
         res.status(200).json(result);
     } catch (err) {
         console.error('Failed to Update User:', err);
         res.status(400).json({ error: 'Failed to Update User' });
     }
-}
+};
+
 
 
 const login = async (req, res) => {
