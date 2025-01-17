@@ -45,6 +45,7 @@ export const contactSchema = yup.object({
     otherProfiles: yup.string(),
     // 11. Lead Assignment and Team Collaboration:
     agentOrTeamMember: yup.string(),
+    assignedTo: yup.string(),
     internalNotesOrComments: yup.string(),
     createBy: yup.string(),
     // 12. Custom Fields:

@@ -279,7 +279,6 @@ const routes = [
   //   icon: <Icon as={FaRupeeSign} width='20px' height='20px' color='inherit' />,
   //   component: Payments,
   // },
-
   // ------------- Roles Routes ------------------------
   {
     name: "Roles",

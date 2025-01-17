@@ -1,6 +1,6 @@
 
 import { useEffect, useState } from 'react';
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { HasAccess } from "../../../redux/accessUtils";
 import { Grid, GridItem, Text, Menu, MenuButton, MenuItem, MenuList, useDisclosure } from '@chakra-ui/react';
 import { DeleteIcon, ViewIcon, EditIcon, } from "@chakra-ui/icons";
@@ -38,8 +38,13 @@ const Index = () => {
     const [selectedId, setSelectedId] = useState();
     const [selectedValues, setSelectedValues] = useState([]);
     const [isImportProperty, setIsImportProperty] = useState(false);
-
-    const data = useSelector((state) => state?.propertyData?.data)
+    const location = useLocation();
+    const region = location.state?.region.region;
+    console.log(region)
+    let data = useSelector((state) => state?.propertyData?.data)
+     data = region ? 
+        data.filter((property) => property.region === region) : 
+        data;
 console.log(data)
     const fetchCustomDataFields = async () => {
         setIsLoding(true);

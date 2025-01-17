@@ -4,9 +4,9 @@ import ReactApexChart from "react-apexcharts";
 const ApexChart = (props) => {
   const { leadData } = props;
 
-  let activeLength = leadData && leadData.length > 0 ? leadData?.filter(lead => lead?.leadStatus === "active")?.length : 0;
-  let pendingLength = leadData && leadData.length > 0 ? leadData?.filter(lead => lead?.leadStatus === "pending")?.length : 0;
-  let soldLength = leadData && leadData.length > 0 ? leadData?.filter(lead => lead?.leadStatus === "sold")?.length : 0;
+  let activeLength = leadData && leadData.length > 0 ? leadData?.filter(lead => lead?.leadStatus === "hot")?.length : 0;
+  let pendingLength = leadData && leadData.length > 0 ? leadData?.filter(lead => lead?.leadStatus === "warm")?.length : 0;
+  let soldLength = leadData && leadData.length > 0 ? leadData?.filter(lead => lead?.leadStatus === "cold")?.length : 0;
 
   const series = [activeLength, pendingLength, soldLength];
   const scaledSeries = series?.map(value => {
@@ -70,7 +70,7 @@ const ApexChart = (props) => {
       lineCap: 'round'
     },
     colors: ["#25BE87", "#ECC94B", "#ff5959"],
-    labels: ['Active', 'Pending', 'Sold'],
+    labels: ['Hot', 'Warm', 'Cold'],
     legend: {
       show: true,
       floating: true,

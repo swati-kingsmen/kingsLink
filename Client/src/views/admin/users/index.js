@@ -95,6 +95,7 @@ const Index = () => {
         try {
             setIsLoding(true)
             let response = await deleteManyApi(`api/user/deleteMany`, selectedValues)
+            console.log(response)
             if (response.status === 200) {
                 setSelectedValues([])
                 setDelete(false)
@@ -151,7 +152,7 @@ const Index = () => {
                 setGetTagValuesOutside={setGetTagValuesOutside}
                 setSearchboxOutside={setSearchboxOutside}
             />
-            <AddEditUser isOpen={isOpen} onClose={handleClose} data={editData} selectedId={selectedId} userAction={userAction} setUserAction={setUserAction} fetchData={fetchData} />
+            <AddEditUser isOpen={isOpen} onClose={handleClose} data={editData} selectedId={selectedId} userAction={userAction} setUserAction={setUserAction} fetchData={fetchData} setAction={setAction} />
             <CommonDeleteModel isOpen={deleteMany} onClose={() => setDelete(false)} type='User' handleDeleteData={handleDeleteClick} ids={''} selectedValues={selectedValues} />
 
             <UserAdvanceSearch

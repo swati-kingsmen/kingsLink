@@ -4,8 +4,10 @@ import { getApi } from 'services/api';
 
 export const fetchContactData = createAsyncThunk('fetchContactData', async () => {
     const user = JSON.parse(localStorage.getItem("user"));
+    console.log(user,"**********************")
     try {
-        const response = await getApi(user.role === 'superAdmin' ? 'api/contact/' : `api/contact/?createBy=${user._id}`);
+        const response = await getApi(user.role === 'superAdmin' ? 'api/contact/' : user.designation === 'manager'
+            ? `api/contact/?createBy=${user._id}`: `api/contact/?assignedTo=${user.username}`);
         return response.data;
     } catch (error) {
         throw error;

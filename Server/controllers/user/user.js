@@ -57,6 +57,7 @@ const register = async (req, res) => {
             res.status(200).json({
                 message: 'User created successfully',
                 user: {
+                    _id: newUser._id,
                     username: newUser.username,
                     firstName: newUser.firstName,
                     lastName: newUser.lastName,
@@ -101,61 +102,135 @@ const view = async (req, res) => {
     }
 }
 
+// let deleteData = async (req, res) => {
+//     try {
+//         const userId = req.params.id;
+        
+//         // Assuming you have retrieved the user document using userId
+//         const user = await User.findById(userId);
+//         if(process.env.DEFAULT_USERS.includes(user?.username)){
+//             return res.status(400).json({ message: `You don't have access to delete ${username}` })
+//         }
+//         if (!user) {
+//             return res.status(404).json({ success: false, message: 'User not found', });
+//         }
+//         if (user.role !== 'superAdmin') {
+//             // Update the user's 'deleted' field to true
+//             await User.updateOne({ _id: userId }, { $set: { deleted: true } });
+//             res.send({ message: 'Record deleted Successfully', });
+//         } else {
+//             res.status(404).json({ message: 'admin can not delete', });
+//         }
+//     } catch (error) {
+//         res.status(500).json({ error });
+//     }
+// }
+
+
 let deleteData = async (req, res) => {
     try {
         const userId = req.params.id;
         
-        // Assuming you have retrieved the user document using userId
+        // Fetch user document using the userId
         const user = await User.findById(userId);
-        if(process.env.DEFAULT_USERS.includes(user?.username)){
-            return res.status(400).json({ message: `You don't have access to delete ${username}` })
-        }
+        
         if (!user) {
-            return res.status(404).json({ success: false, message: 'User not found', });
+            return res.status(404).json({ success: false, message: 'User not found' });
         }
-        if (user.role !== 'superAdmin') {
-            // Update the user's 'deleted' field to true
-            await User.updateOne({ _id: userId }, { $set: { deleted: true } });
-            res.send({ message: 'Record deleted Successfully', });
-        } else {
-            res.status(404).json({ message: 'admin can not delete', });
+        
+        // Prevent deletion of default users (defined in environment variables)
+        if (process.env.DEFAULT_USERS.includes(user.username)) {
+            return res.status(400).json({ message: `You don't have access to delete ${user.username}` });
         }
+        
+        // Prevent deletion of superAdmin users
+        if (user.role === 'superAdmin') {
+            return res.status(403).json({ message: 'SuperAdmin users cannot be deleted' });
+        }
+        
+        // Mark the user as deleted (soft delete)
+        await User.deleteOne({ _id: userId }, { $set: { deleted: true } });
+        return res.status(200).json({ success: true, message: 'Record deleted successfully' });
+        
     } catch (error) {
-        res.status(500).json({ error });
+        console.error('Error deleting user:', error);
+        return res.status(500).json({ success: false, error: 'Internal server error' });
     }
-}
+};
 
+
+// const deleteMany = async (req, res) => {
+//     console.log(req.body,"req.body..........................")
+//     try {
+//         // if(process.env.DEFAULT_USERS.includes(username)){
+//         //     return res.status(400).json({ message: `You don't have access to change ${username}` })
+//         // }
+//         // const updatedUsers = await User.updateMany({ _id: { $in: req.body }, role: { $ne: 'superAdmin' } }, { $set: { deleted: true } });
+       
+//         const userIds = req.body; // Assuming req.body is an array of user IDs
+//         const users = await User.find({ _id: { $in: userIds } });
+//         console.log(users,"users....................")
+//         // Check for default users and filter them out
+//         const defaultUsers = process.env.DEFAULT_USERS;
+//         const filteredUsers = users.filter(user => !defaultUsers.includes(user.username));
+        
+//         // Further filter out superAdmin users
+//         const nonSuperAdmins = filteredUsers.filter(user => user.role !== 'superAdmin');
+//         const nonSuperAdminIds = nonSuperAdmins.map(user => user._id);
+//         console.log(nonSuperAdminIds,"nonSuperAdminIds....................")
+//         console.log(nonSuperAdmins,"nonSuperAdmins....................")
+//         if (nonSuperAdminIds.length === 0) {
+//             return res.status(400).json({ message: "No users to delete or all users are protected." });
+//         }
+
+//         // Update the 'deleted' field to true for the remaining users
+//         const updatedUsers = await User.updateMany({ _id: { $in: nonSuperAdminIds } }, { $set: { deleted: true } });
+        
+// console.log(updatedUsers,"updatedUsers....................")
+//         res.status(200).json({ message: "done", updatedUsers })
+//     } catch (err) {
+//         res.status(404).json({ message: "error", err })
+//     }
+// }
 const deleteMany = async (req, res) => {
     try {
-        // if(process.env.DEFAULT_USERS.includes(username)){
-        //     return res.status(400).json({ message: `You don't have access to change ${username}` })
-        // }
-        // const updatedUsers = await User.updateMany({ _id: { $in: req.body }, role: { $ne: 'superAdmin' } }, { $set: { deleted: true } });
-       
-        const userIds = req.body; // Assuming req.body is an array of user IDs
-        const users = await User.find({ _id: { $in: userIds } });
-        
-        // Check for default users and filter them out
-        const defaultUsers = process.env.DEFAULT_USERS;
-        const filteredUsers = users.filter(user => !defaultUsers.includes(user.username));
-        
-        // Further filter out superAdmin users
-        const nonSuperAdmins = filteredUsers.filter(user => user.role !== 'superAdmin');
-        const nonSuperAdminIds = nonSuperAdmins.map(user => user._id);
-        
-        if (nonSuperAdminIds.length === 0) {
-            return res.status(400).json({ message: "No users to delete or all users are protected." });
+        // Extract the array of user IDs from the request body
+        const userIds = req.body;
+
+        if (!Array.isArray(userIds) || userIds.length === 0) {
+            return res.status(400).json({ message: "Invalid input. Provide an array of user IDs." });
         }
 
-        // Update the 'deleted' field to true for the remaining users
-        const updatedUsers = await User.updateMany({ _id: { $in: nonSuperAdminIds } }, { $set: { deleted: true } });
-        
+        // Find users whose role is not 'superAdmin' and whose IDs are in the provided array
+        const usersToDelete = await User.find({
+            _id: { $in: userIds },
+            role: { $ne: 'superAdmin' },
+        });
 
-        res.status(200).json({ message: "done", updatedUsers })
+        // If no valid users are found to delete
+        if (usersToDelete.length === 0) {
+            return res.status(400).json({ message: "No eligible users to delete." });
+        }
+
+        // Extract the IDs of users eligible for deletion
+        const idsToDelete = usersToDelete.map((user) => user._id);
+
+        // Perform the update to mark these users as deleted
+        const result = await User.deleteMany(
+            { _id: { $in: idsToDelete } },
+            { $set: { deleted: true } }
+        );
+
+        // Respond with success
+        return res.status(200).json({
+            success: true,
+            message: `${result.modifiedCount} users have been marked as deleted.`,
+        });
     } catch (err) {
-        res.status(404).json({ message: "error", err })
+        console.error("Error during deletion:", err);
+        return res.status(500).json({ success: false, error: "Internal server error" });
     }
-}
+};
 
 const edit = async (req, res) => {
    

@@ -5,7 +5,8 @@ import { EmailIcon, PhoneIcon, StarIcon } from '@chakra-ui/icons';
 
 const CustomForm = ({ moduleData, values, handleChange, handleBlur, errors, touched, setFieldValue }) => {
     const [selectedOptions, setSelectedOptions] = useState({});
-
+    const user = JSON.parse(localStorage.getItem("user"));
+    console.log(moduleData,"moduleData..............",user)
     useEffect(() => {
         moduleData.fields.forEach(field => {
             if (field.type === 'select' && values[field.name]) {
@@ -47,6 +48,7 @@ const CustomForm = ({ moduleData, values, handleChange, handleBlur, errors, touc
                                 {
                                     moduleData?.fields?.filter((itm) => itm?.belongsTo === item?._id)?.map((field, index) => (
                                         <GridItem colSpan={{ base: 12, sm: 6 }} key={index}>
+                                       { <span>{field}</span>}
                                             {field.type === 'check' ? '' : <FormLabel display='flex' ms='4px' fontSize='sm' fontWeight='500' mb='8px' htmlFor={field.name}>{field.label} {field.validation && field.validation.find((validation) => validation.require) && (
                                                 <span style={{ color: 'red' }}>*</span>
                                             )}</FormLabel>}
@@ -131,7 +133,7 @@ const CustomForm = ({ moduleData, values, handleChange, handleBlur, errors, touc
                                                                     onBlur={handleBlur}
                                                                     value={values[field.name]}
                                                                     fontWeight='500'
-                                                                    placeholder={`Enter ${field.label}`}
+                                                                    placeholder={`Enter ${field.label} `}
                                                                     borderColor={errors?.[field?.name] && touched?.[field?.name] ? "red.300" : null}
                                                                 />
                                                             </InputGroup>

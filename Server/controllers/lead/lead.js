@@ -68,6 +68,7 @@ const changeStatus = async (req, res) => {
 };
 
 const add = async (req, res) => {
+    console.log(req.body,"lead..................................................")
     try {
         req.body.createdDate = new Date();
         const user = new Lead(req.body);
@@ -282,7 +283,7 @@ const view = async (req, res) => {
 
 const deleteData = async (req, res) => {
     try {
-        const lead = await Lead.findByIdAndUpdate(req.params.id, { deleted: true });
+        const lead = await Lead.findByIdAndDelete(req.params.id, { deleted: true });
         res.status(200).json({ message: "done", lead })
     } catch (err) {
         res.status(404).json({ message: "error", err })
@@ -291,7 +292,7 @@ const deleteData = async (req, res) => {
 
 const deleteMany = async (req, res) => {
     try {
-        const lead = await Lead.updateMany({ _id: { $in: req.body } }, { $set: { deleted: true } });
+        const lead = await Lead.deleteMany({ _id: { $in: req.body } }, { $set: { deleted: true } });
         res.status(200).json({ message: "done", lead })
     } catch (err) {
         res.status(404).json({ message: "error", err })

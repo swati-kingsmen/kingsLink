@@ -196,6 +196,23 @@ const contactFields = [
             }
         ],
     },
+    {
+        "name": "assignedTo",
+        "label": "Assigned To",
+        "type": "text",
+        "fixed": true,
+        "delete": false,
+        "belongsTo": null,
+        "backendType": "String",
+        "isTableField": true,
+        "options": [],
+        "validation": [
+            {
+                "require": true,
+                "message": "",
+            },
+        ],
+    },
 
 ];
 

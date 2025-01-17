@@ -9,6 +9,7 @@ import { generateValidationSchema } from '../../../utils';
 import * as yup from 'yup'
 import CustomForm from 'utils/customForm';
 import { postApi } from 'services/api';
+import { deleteApi } from 'services/api';
 
 const Edit = (props) => {
     const { data } = props;
@@ -233,15 +234,15 @@ const Edit = (props) => {
 const EditData = async () => {
     try {
         setIsLoding(true);
-
+        console.log(values,"............values............")
         // Update the contact
         let response = await putApi(
             `api/form/edit/${props?.selectedId || param.id}`,
             { ...values, moduleId: props?.moduleId }
         );
 
-        if (response.status === 200) {
-            console.log(response.status);
+       
+            // console.log(response.status);
 
             // Determine the lead status based on the leadRemark
             const selectedRemark = values?.leadRemark;
@@ -252,8 +253,8 @@ const EditData = async () => {
                 case "notInterested":
                 case "busy":
                 case "notReachable":
-                case "Currently Not Interested":
-                case "Lead Lost":
+                case "currentlyNotInterested":
+                case "leadLost":
                     selectedStatus = "cold"; // Return 'cold' status
                     break;
 
@@ -276,7 +277,7 @@ const EditData = async () => {
             }
 
             console.log("Selected Status: ", selectedStatus);
-
+            if (response.status === 200 && (selectedStatus!=='cold')) {
             // Prepare lead data based on contact values
             const leadData = {
                 ...values, // Spread all the contact fields
@@ -290,19 +291,26 @@ const EditData = async () => {
                 type: "",
                 location: "",
                 source: "Contact Conversion", // Optional: Add any specific flag
-                createdBy: JSON.parse(localStorage.getItem("user"))._id, // Add user details if needed
+                createBy: JSON.parse(localStorage.getItem("user"))._id, // Add user details if needed
+                updateBy:JSON.parse(localStorage.getItem("user"))._id,
             };
 
             // Post the new lead
             let leadResponse = await postApi(`api/lead/add`, leadData);
-
+            console.log("leadResponse.....................+++++++++++++++++++++++++",leadResponse);
             if (leadResponse.status === 200) {
                 console.log("Lead added successfully from contact.");
+                let response = await deleteApi(
+                    `api/contact/delete/`,`${props?.selectedId || param.id}`)
+                    console.log("response.....................+++++++++++++++++++++++++",response);
             } else {
                 console.error("Failed to add the lead:", leadResponse);
             }
 
             // Close the modal and refresh the action
+            props.onClose();
+            props.setAction((prev) => !prev);
+        }else if(response.status === 200 && (selectedStatus==='cold')){
             props.onClose();
             props.setAction((prev) => !prev);
         }

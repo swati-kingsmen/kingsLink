@@ -6,23 +6,54 @@ const Task = require('../../model/schema/task')
 const TextMsg = require('../../model/schema/textMsg')
 const DocumentSchema = require('../../model/schema/document')
 
+// const index = async (req, res) => {
+//     const query = req.query
+//     query.deleted = false;
+
+//     let allData = await Contact.find(query).populate({
+//         path: 'createBy',
+//         match: { deleted: false } // Populate only if createBy.deleted is false
+//     }).exec()
+
+//     const result = allData.filter(item => item.createBy !== null);
+
+//     try {
+//         res.send(result)
+//     } catch (error) {
+//         res.send(error)
+//     }
+// }
+
+
 const index = async (req, res) => {
-    const query = req.query
-    query.deleted = false;
-
-    let allData = await Contact.find(query).populate({
-        path: 'createBy',
-        match: { deleted: false } // Populate only if createBy.deleted is false
-    }).exec()
-
-    const result = allData.filter(item => item.createBy !== null);
-
+    console.log(req.query,"**********************")
     try {
-        res.send(result)
+        const query = { ...req.query, deleted: false }; // Ensure `deleted` is part of the query
+
+        // Fetch data with `createBy` and `assignedTo` populated, including `email` for `assignedTo`
+        let allData = await Contact.find(query)
+            .populate({
+                path: 'createBy',
+                match: { deleted: false }, // Populate only if createBy.deleted is false
+            })
+            .populate({
+                path: 'assignedTo',
+                select: 'email', // Include only the `email` field for assignedTo
+                match: { deleted: false }, // Populate only if assignedTo.deleted is false
+            })
+            .exec();
+
+        // Filter out items where `createBy` is null
+        const result = allData.filter(item => item.createBy !== null);
+
+        // Respond with the result
+        res.send(result);
     } catch (error) {
-        res.send(error)
+        // Handle errors
+        res.status(500).send({ error: 'An error occurred', details: error.message });
     }
-}
+};
+
 
 // const add = async (req, res) => {
 //     try {
@@ -110,6 +141,7 @@ const add = async (req, res) => {
 
 
 const addMany = async (req, res) => {
+    console.log(".........................................................................................................................................",req.body)
     try {
         const data = req.body;
         const insertedContact = await Contact.insertMany(data);
@@ -495,7 +527,7 @@ const view = async (req, res) => {
 
 const deleteData = async (req, res) => {
     try {
-        const contact = await Contact.findByIdAndUpdate(req.params.id, { deleted: true });
+        const contact = await Contact.findByIdAndDelete(req.params.id, { deleted: true });
         res.status(200).json({ message: "done", contact })
     } catch (err) {
         res.status(404).json({ message: "error", err })
@@ -504,7 +536,7 @@ const deleteData = async (req, res) => {
 
 const deleteMany = async (req, res) => {
     try {
-        const contact = await Contact.updateMany({ _id: { $in: req.body } }, { $set: { deleted: true } });
+        const contact = await Contact.deleteMany({ _id: { $in: req.body } }, { $set: { deleted: true } });
         res.status(200).json({ message: "done", contact })
     } catch (err) {
         res.status(404).json({ message: "error", err })

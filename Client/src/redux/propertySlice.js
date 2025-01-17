@@ -4,7 +4,7 @@ import { getApi } from '../services/api'
 export const fetchPropertyData = createAsyncThunk('fetchPropertyData', async () => {
     const user = JSON.parse(localStorage.getItem("user"));
     try {
-        const response = await getApi(user.role === 'superAdmin' ? 'api/property/' : `api/property/?createBy=${user._id}`);
+        const response = await getApi(user.role === 'superAdmin' ? 'api/property/' : `api/property/`);
         return response.data;
     } catch (error) {
         throw error;

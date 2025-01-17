@@ -804,7 +804,7 @@ const deletmodule = async (req, res) => {
 }
 const deleteManyModule = async (req, res) => {
     try {
-        const module = await CustomField.updateMany({ _id: { $in: req.body } }, { $set: { deleted: true } });
+        const module = await CustomField.deleteMany({ _id: { $in: req.body } }, { $set: { deleted: true } });
         res.status(200).json({ message: "Many module delete successfully", module })
     } catch (err) {
         res.status(404).json({ message: "error", err })

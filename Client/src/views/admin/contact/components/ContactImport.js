@@ -81,6 +81,7 @@ function ContactImport() {
     const { errors, touched, values, handleBlur, handleChange, handleSubmit, setFieldValue, resetForm } = formik
 
     const AddData = async (contacts) => {
+        console.log(contacts,".....contacts..........");
         try {
             setIsLoding(true);
             let response = await postApi('api/contact/addMany', contacts)

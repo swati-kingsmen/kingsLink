@@ -3,6 +3,7 @@ import { constant } from "constant"
 
 
 export const postApi = async (path, data, login) => {
+    console.log(data,"postapidata.....................")
     try {
         let result = await axios.post(constant.baseUrl + path, data, {
             headers: {
@@ -39,6 +40,7 @@ export const putApi = async (path, data, id) => {
 }
 
 export const deleteApi = async (path, param) => {
+    console.log(param)
     try {
         let result = await axios.delete(constant.baseUrl + path + param, {
             headers: {
@@ -56,6 +58,7 @@ export const deleteApi = async (path, param) => {
 }
 
 export const deleteManyApi = async (path, data) => {
+    console.log(data)
     try {
         let result = await axios.post(constant.baseUrl + path, data, {
             headers: {
@@ -63,6 +66,7 @@ export const deleteManyApi = async (path, data) => {
             }
         })
         if (result.data?.token && result.data?.token !== null) {
+            console.log(result.data?.token)
             localStorage.setItem('token', result.data?.token)
         }
         return result

@@ -78,8 +78,7 @@ const AddEditUser = (props) => {
     resetForm,
   } = formik;
 
-  const AddData = async () => {
-    console.log(userAction)
+  const AddData = async ({props}) => {
     if (userAction === "add") {
       try {
         setIsLoding(true);
@@ -111,7 +110,7 @@ const AddEditUser = (props) => {
           
           onClose();
           resetForm();
-          setAction((prev) => !prev);
+          props.setAction((prev) => !prev);
           setUserAction("");
         } else {
           toast.error(response.response.data?.message);
@@ -178,7 +177,7 @@ const AddEditUser = (props) => {
     fetchAllEmployeeData();
     console.log(allEmployees, "fetch all employee data");
     console.log(allManager, "fetch all manager data");
-  }, []);
+  },[]);
 
     // Fetch all employee data and filter managers
 

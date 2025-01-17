@@ -76,10 +76,11 @@ const Index = () => {
   const [emailRec, setEmailRec] = useState("");
   const [phoneRec, setPhoneRec] = useState({});
   const [filter, setFilter] = useState("all");
+
   const sampData = useSelector((state) =>
     Array.isArray(state?.leadData?.data) ? state?.leadData?.data : []
   );
-
+console.log(sampData,"sampData")
   // const sampData = useSelector((state) => state?.leadData?.data);
   const data =
     filter === "all"
@@ -151,7 +152,8 @@ const Index = () => {
 
   const changeStatus = (row) => {
     // Get the 'name' value from the row
-    const name = row.original.name;
+    console.log(row.original.leadRemark);
+    const name = row.original.leadRemark;
 
     //status logic
     switch (name) {
@@ -161,16 +163,16 @@ const Index = () => {
       case "notReachable":
       case "currentlyNotInterested":
       case "leadLost":
-        return "cold"; // Return 'cold' status
-      case "FollowUp":
+        return "COLD"; // Return 'cold' status
+      case "followUp":
       case "visitSchedule":
       case "visitReschedule":
       case "videoCallSchedule":
       case "videoCallReschedule":
-        return "warm"; // Return 'warm' status
+        return "WARM"; // Return 'warm' status
       case "visitedDone":
       case "bookingDone":
-        return "hot"; // Return 'hot' status
+        return "HOT"; // Return 'hot' status
       default:
         return "pending"; // Default case if no match
     }
@@ -353,7 +355,19 @@ const Index = () => {
           </Flex>
         ),
       };
-      
+
+      const getStatusColor = (status) => {
+        switch (status?.toLowerCase()) {
+          case "hot":
+            return "green.500"; // Chakra UI color for "hot" status
+          case "warm":
+            return "orange.500"; // Chakra UI color for "warm" status
+          case "cold":
+            return "red.500"; // Chakra UI color for "cold" status
+          default:
+            return "gray.500"; // Default color for undefined statuses
+        }
+      };
 
       const tempTableColumns = [
         { Header: "#", accessor: "_id", isSortable: false, width: 10 },
@@ -364,29 +378,26 @@ const Index = () => {
           center: true,
           cell: ({ row }) => (
             <div className="selectOpt">
-              <Select
-                defaultValue={row.original.leadStatus} // Set the default value from the row's leadStatus
-                className={changeStatus(row)} // Custom class based on the status
-                onChange={(e) => setStatusData(row, e)} // Handle the status change
+              <Text
+                className={changeStatus(row)}
+                onChange={(e) => setStatusData(row, e)}
+                defaultValue={row.original.leadStatus}
                 height={7}
+                color={getStatusColor(row.original.leadStatus)}
                 width={130}
                 value={row.original.leadStatus} // Set the current status value
                 style={{ fontSize: "14px" }}
+                textAlign="center" // Aligns the text horizontally
+                display="flex" // Use flexbox for centering
+                alignItems="center" // Centers the text vertically
+                justifyContent="center"
               >
-                {/* Dynamically show options depending on the current status */}
-                {changeStatus(row) !== "cold" && (
-                  <option value="cold">Cold</option>
-                )}
-                {changeStatus(row) !== "warm" && (
-                  <option value="warm">Warm</option>
-                )}
-                {changeStatus(row) !== "hot" && (
-                  <option value="hot">Hot</option>
-                )}
-              </Select>
+                {changeStatus(row)}
+              </Text>
             </div>
           ),
         },
+
         ...(result?.payload?.data && result.payload.data.length > 0
           ? result.payload.data[0]?.fields
               ?.filter((field) => field?.isTableField === true)
